@@ -1,4 +1,4 @@
-# Форматирования строковых шаблонов
+# Форматирование строковых шаблонов
 
 [![Latest Version][badge-release]][packagist]
 [![Software License][badge-license]][license]
