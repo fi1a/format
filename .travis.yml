@@ -10,6 +10,8 @@ jobs:
   include:
     - php: 7.3
     - php: 7.4
+    - php: 8.0
+    - php: 8.1
     - php: nightly
       env: COMPOSER_OPTIONS=--ignore-platform-reqs
   allow_failures:
@@ -20,7 +22,7 @@ before_install:
 
 install:
   - travis_retry composer require --no-update php-coveralls/php-coveralls:^2
-  - travis_retry composer install --no-interaction --prefer-dist --no-progress --no-suggest $COMPOSER_OPTIONS
+  - travis_retry composer install --no-interaction --prefer-dist --no-progress $COMPOSER_OPTIONS
 
 script:
   - composer fl:lint
