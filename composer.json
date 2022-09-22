@@ -7,7 +7,7 @@
   "license": "MIT",
   "authors": [
     {
-      "name": "Nikolay Gorohovsky",
+      "name": "Fi1a",
       "email": "fi1a@icloud.com"
     }
   ],
@@ -18,7 +18,9 @@
   "require-dev": {
     "phpunit/phpunit": "^9.3",
     "slevomat/coding-standard": "^6.3",
-    "squizlabs/php_codesniffer": "^3.5"
+    "squizlabs/php_codesniffer": "^3.5",
+    "vimeo/psalm": "^4.3",
+    "captainhook/captainhook": "^5.4"
   },
   "config": {
     "sort-packages": true,
@@ -38,12 +40,29 @@
   },
   "scripts": {
     "fl:lint": "phpcs --cache=build/cache/phpcs.cache",
-    "fl:phpcbf": "phpcbf --cache=build/cache/phpcs.cache",
-    "fl:test:unit:coverage:ci": "phpunit --coverage-clover build/logs/clover.xml"
+    "fl:phpcbf": "phpcbf --cache=build/cache/phpcbf.cache",
+    "fl:test:unit:coverage:ci": "phpunit --coverage-clover build/logs/clover.xml",
+    "fl:test:unit": "phpunit",
+    "fl:psalm": "psalm",
+    "fl:check": [
+      "@fl:lint",
+      "@fl:psalm",
+      "@fl:test:unit"
+    ],
+    "pre-commit": [
+      "@fl:lint",
+      "@fl:psalm"
+    ],
+    "pre-push": [
+      "@fl:test:unit"
+    ]
   },
   "scripts-descriptions": {
     "fl:lint": "Проверяет весь исходный код на соответсвие стандартам.",
     "fl:phpcbf": "Поправляет весь исходный код на соответсвие стандартам.",
-    "fl:test:unit:coverage:ci": "Запускает все модульные тесты и генериреут отчет покрытия Clover."
+    "fl:test:unit:coverage:ci": "Запускает все модульные тесты и генериреут отчет покрытия Clover.",
+    "fl:psalm": "Статический анализ",
+    "fl:check": "Полная проверка кода",
+    "fl:test:unit": "Модульное тестирование"
   }
 }

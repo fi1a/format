@@ -6,6 +6,7 @@ namespace Fi1a\Format\Tokenizer;
 
 use Fi1a\Tokenizer\ATokenizer;
 use Fi1a\Tokenizer\IToken;
+use Fi1a\Tokenizer\ITokenFactory;
 
 use const PHP_EOL;
 use const PREG_OFFSET_CAPTURE;
@@ -18,6 +19,7 @@ class Tokenizer extends ATokenizer
 {
     /**
      * @inheritDoc
+     * @psalm-suppress MixedAssignment
      */
     protected function tokenize(): void
     {
@@ -49,7 +51,11 @@ class Tokenizer extends ATokenizer
                 $tokens[] = $this->getToken(Token::T_TEXT, $image, $startLine, $endLine, $startColumn, $endColumn);
             }
             foreach ($types as $index => $type) {
-                if ($match[$index][0] === '') {
+                /**
+                 * @var int $index
+                 * @var int $type
+                 */
+                if (!array_key_exists($index, $match) || $match[$index][0] === '') {
                     continue;
                 }
                 $tokens[] = $this->getToken(
@@ -87,6 +93,9 @@ class Tokenizer extends ATokenizer
         int &$startColumn,
         int &$endColumn
     ): IToken {
+        /**
+         * @var ITokenFactory $factory
+         */
         $factory = static::getTokenFactory();
         $endColumn = $startColumn + mb_strlen($image);
         $endLine += mb_substr_count($image, PHP_EOL);

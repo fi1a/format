@@ -12,6 +12,8 @@ use const LC_ALL;
 
 class FormatterTest extends TestCase
 {
+    public $key = 'key_value';
+
     /**
      * Данные для метода Formatter::format
      *
@@ -244,6 +246,18 @@ class FormatterTest extends TestCase
                     'key' => 0,
                 ],
                 '0',
+            ],
+            [
+                '{{not_exist}}',
+                [],
+                '{{not_exist}}',
+            ],
+            [
+                '{{key:key:key}}',
+                [
+                    'key' => new static(),
+                ],
+                '{{key:key:key}}',
             ],
         ];
     }

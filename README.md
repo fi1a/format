@@ -111,13 +111,13 @@ Formatter::format('{{0|01.2f}}', [100.5]); // 100.50
 [badge-release]: https://img.shields.io/packagist/v/fi1a/format?label=release
 [badge-license]: https://img.shields.io/github/license/fi1a/format?style=flat-square
 [badge-php]: https://img.shields.io/packagist/php-v/fi1a/format?style=flat-square
-[badge-build]: https://img.shields.io/travis/fi1a/format?style=flat-square
+[badge-build]: https://img.shields.io/travis/com/fi1a/format?style=flat-square
 [badge-coverage]: https://img.shields.io/coveralls/github/fi1a/format/master.svg?style=flat-square
 [badge-downloads]: https://img.shields.io/packagist/dt/fi1a/format.svg?style=flat-square&colorB=mediumvioletred
 
 [packagist]: https://packagist.org/packages/fi1a/format
 [license]: https://github.com/fi1a/format/blob/master/LICENSE
 [php]: https://php.net
-[build]: https://travis-ci.org/fi1a/format
+[build]: https://app.travis-ci.com/github/fi1a/format
 [coverage]: https://coveralls.io/r/fi1a/format?branch=master
 [downloads]: https://packagist.org/packages/fi1a/format

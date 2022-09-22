@@ -8,6 +8,7 @@ use ArrayAccess;
 use ArrayObject;
 use Fi1a\Format\Tokenizer\Token;
 use Fi1a\Format\Tokenizer\Tokenizer;
+use Fi1a\Tokenizer\IToken;
 use Fi1a\Tokenizer\ITokenizer;
 
 /**
@@ -24,6 +25,9 @@ class Formatter implements IFormatter
         $formatted = '';
         $variables = [];
         while (($token = $tokenizer->next()) !== ITokenizer::T_EOF) {
+            /**
+             * @var IToken $token
+             */
             if ($token->getType() === Token::T_TEXT) {
                 $formatted .= str_replace('%', '%%', $token->getImage());
 
@@ -45,24 +49,26 @@ class Formatter implements IFormatter
         }
         array_unshift($variables, $formatted);
 
-        return call_user_func_array('sprintf', $variables);
+        return (string) call_user_func_array('sprintf', $variables);
     }
 
     /**
      * Возвращает значение для замены
      *
      * @param mixed  $values
-     * @param mixed[]  $vars
+     * @param string[]  $vars
      *
      * @return string
+     *
+     * @psalm-suppress PossiblyInvalidArrayAccess
      */
     private static function getValue($values, array $vars, string $fullKey)
     {
         $key = array_shift($vars);
         if (
-            !is_object($values) && !(is_array($values) || $values instanceof ArrayAccess)
+            (!is_object($values) && !(is_array($values) || $values instanceof ArrayAccess))
             || (is_object($values) && !($values instanceof ArrayObject) && !property_exists($values, $key))
-            || (((is_array($values) || $values instanceof ArrayAccess)) && !array_key_exists($key, $values))
+            || (((is_array($values) || $values instanceof ArrayAccess)) && !array_key_exists($key, (array) $values))
         ) {
             return '{{' . $fullKey . '}}';
         }

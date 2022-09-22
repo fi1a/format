@@ -45,6 +45,8 @@ class Token extends AToken
      * Возвращает доступные типы токенов
      *
      * @return int[]
+     *
+     * @psalm-suppress MixedReturnTypeCoercion
      */
     protected function getTypes(): array
     {

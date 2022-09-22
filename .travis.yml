@@ -5,6 +5,10 @@ cache:
   directories:
     - /home/travis/.composer/cache/
 
+env:
+  global:
+    - XDEBUG_MODE=coverage
+
 jobs:
   fast_finish: true
   include:
