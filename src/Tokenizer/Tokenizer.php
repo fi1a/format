@@ -31,7 +31,7 @@ class Tokenizer extends ATokenizer
         $endColumn = 1;
         $tokens = [];
         preg_match_all(
-            '#(\{\{[\s\t\n]*)([0-9\w\_\:]+)([\s\t\n]*\|[\s\t\n]*|)([^\}\s\t\n]*)([\s\t\n]*\}\})#',
+            '#(\{\{[\s\t\n]*)([0-9\w\_\:]*)([\s\t\n]*\|[\s\t\n]*|)([^\}\s\t\n]*)([\s\t\n]*\}\})#',
             $source,
             $matches,
             PREG_OFFSET_CAPTURE | PREG_SET_ORDER

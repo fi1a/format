@@ -24,20 +24,37 @@ class Formatter implements IFormatter
         $tokenizer = new Tokenizer($string);
         $formatted = '';
         $variables = [];
+        $counter = 0;
+        $skip = false;
         while (($token = $tokenizer->next()) !== ITokenizer::T_EOF) {
             /**
              * @var IToken $token
              */
+            if ($skip) {
+                $skip = false;
+
+                continue;
+            }
             if ($token->getType() === Token::T_TEXT) {
                 $formatted .= str_replace('%', '%%', $token->getImage());
 
                 continue;
             }
-            if ($token->getType() === Token::T_VARIABLE) {
+
+            if ($tokenizer->lookAtPrevType() === Token::T_OPEN) {
+                $image = $token->getImage();
+                $vars = explode(':', $image);
+                if ($token->getType() !== Token::T_VARIABLE) {
+                    $vars = [(string) $counter];
+                    $counter++;
+                    $tokenizer->prev();
+                    $skip = true;
+                }
+
                 $formatted .= '%';
                 $formatted .= array_push(
                     $variables,
-                    static::getValue($values, explode(':', $token->getImage()), $token->getImage())
+                    static::getValue($values, $vars, $image)
                 );
                 if ($tokenizer->lookAtNextType(2) !== Token::T_FORMAT) {
                     $formatted .= '$s';
