@@ -25,16 +25,10 @@ class Formatter implements IFormatter
         $formatted = '';
         $variables = [];
         $counter = 0;
-        $skip = false;
         while (($token = $tokenizer->next()) !== ITokenizer::T_EOF) {
             /**
              * @var IToken $token
              */
-            if ($skip) {
-                $skip = false;
-
-                continue;
-            }
             if ($token->getType() === Token::T_TEXT) {
                 $formatted .= str_replace('%', '%%', $token->getImage());
 
@@ -42,13 +36,13 @@ class Formatter implements IFormatter
             }
 
             if ($tokenizer->lookAtPrevType() === Token::T_OPEN) {
+                $nextIndex = 2;
                 $image = $token->getImage();
                 $vars = explode(':', $image);
                 if ($token->getType() !== Token::T_VARIABLE) {
                     $vars = [(string) $counter];
                     $counter++;
-                    $tokenizer->prev();
-                    $skip = true;
+                    $nextIndex = 1;
                 }
 
                 $formatted .= '%';
@@ -56,12 +50,12 @@ class Formatter implements IFormatter
                     $variables,
                     static::getValue($values, $vars, $image)
                 );
-                if ($tokenizer->lookAtNextType(2) !== Token::T_FORMAT) {
+                if ($tokenizer->lookAtNextType($nextIndex) !== Token::T_FORMAT) {
                     $formatted .= '$s';
 
                     continue;
                 }
-                $formatted .= '$' . $tokenizer->lookAtNextImage(2);
+                $formatted .= '$' . $tokenizer->lookAtNextImage($nextIndex);
             }
         }
         array_unshift($variables, $formatted);
