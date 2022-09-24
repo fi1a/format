@@ -6,6 +6,7 @@ namespace Fi1a\Format;
 
 use ArrayAccess;
 use ArrayObject;
+use Fi1a\Format\Exception\FormatErrorException;
 use Fi1a\Format\Tokenizer\Token;
 use Fi1a\Format\Tokenizer\Tokenizer;
 use Fi1a\Tokenizer\IToken;
@@ -25,17 +26,60 @@ class Formatter implements IFormatter
         $formatted = '';
         $variables = [];
         $counter = 0;
+        $conditions = new Condition();
+        $openConditions = 0;
+
         while (($token = $tokenizer->next()) !== ITokenizer::T_EOF) {
             /**
              * @var IToken $token
              */
-            if ($token->getType() === Token::T_TEXT) {
+            if ($token->getType() === Token::T_TEXT && $conditions->isSatisfies()) {
                 $formatted .= str_replace('%', '%%', $token->getImage());
 
                 continue;
             }
 
-            if ($tokenizer->lookAtPrevType() === Token::T_OPEN) {
+            if (
+                (
+                    $token->getType() === Token::T_IF
+                    || $token->getType() === Token::T_ELSEIF
+                )
+                && $tokenizer->lookAtNextType(1) === Token::T_OPEN_PARENTHESES
+                && $tokenizer->lookAtNextType(2) === Token::T_CONDITION
+                && $tokenizer->lookAtNextType(3) === Token::T_CLOSE_PARENTHESES
+            ) {
+                $image = (string) $tokenizer->lookAtNextImage(2);
+                $vars = explode(':', $image);
+                $value = (bool) static::getValue($values, $vars, $image);
+                if ($token->getType() === Token::T_IF) {
+                    $conditions->add($value);
+                    $openConditions++;
+
+                    continue;
+                }
+                if (!$conditions->isEmpty()) {
+                    $conditions->set($conditions->count() - 1, $value);
+                }
+
+                continue;
+            }
+            if ($token->getType() === Token::T_ENDIF) {
+                $conditions->delete($conditions->count() - 1);
+                $openConditions--;
+
+                continue;
+            }
+            if ($token->getType() === Token::T_ELSE) {
+                if (!$conditions->isEmpty()) {
+                    $conditions->set($conditions->count() - 1, !$conditions->get($conditions->count() - 1));
+                }
+
+                continue;
+            }
+            if (
+                $tokenizer->lookAtPrevType() === Token::T_OPEN
+                && $conditions->isSatisfies()
+            ) {
                 $nextIndex = 2;
                 $image = $token->getImage();
                 $vars = explode(':', $image);
@@ -48,7 +92,7 @@ class Formatter implements IFormatter
                 $formatted .= '%';
                 $formatted .= array_push(
                     $variables,
-                    static::getValue($values, $vars, $image)
+                    static::getValueWithKey($values, $vars, $image)
                 );
                 if ($tokenizer->lookAtNextType($nextIndex) !== Token::T_FORMAT) {
                     $formatted .= '$s';
@@ -60,6 +104,10 @@ class Formatter implements IFormatter
         }
         array_unshift($variables, $formatted);
 
+        if ($openConditions !== 0) {
+            throw new FormatErrorException('Condition format error');
+        }
+
         return (string) call_user_func_array('sprintf', $variables);
     }
 
@@ -69,7 +117,7 @@ class Formatter implements IFormatter
      * @param mixed  $values
      * @param string[]  $vars
      *
-     * @return string
+     * @return string|bool
      *
      * @psalm-suppress PossiblyInvalidArrayAccess
      */
@@ -81,7 +129,7 @@ class Formatter implements IFormatter
             || (is_object($values) && !($values instanceof ArrayObject) && !property_exists($values, $key))
             || (((is_array($values) || $values instanceof ArrayAccess)) && !array_key_exists($key, (array) $values))
         ) {
-            return '{{' . $fullKey . '}}';
+            return false;
         }
         if (count($vars)) {
             if (is_object($values) && !($values instanceof ArrayObject)) {
@@ -95,6 +143,22 @@ class Formatter implements IFormatter
         }
 
         return static::convert($values[$key]);
+    }
+
+    /**
+     * Возвращает значение для замены с ключем
+     *
+     * @param mixed  $values
+     * @param string[]  $vars
+     */
+    private static function getValueWithKey($values, array $vars, string $fullKey): string
+    {
+        $value = static::getValue($values, $vars, $fullKey);
+        if ($value === false) {
+            return '{{' . $fullKey . '}}';
+        }
+
+        return (string) $value;
     }
 
     /**

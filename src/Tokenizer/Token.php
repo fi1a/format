@@ -28,6 +28,20 @@ class Token extends AToken
 
     public const T_SEPARATOR = 60;
 
+    public const T_IF = 70;
+
+    public const T_ELSEIF = 80;
+
+    public const T_ELSE = 90;
+
+    public const T_ENDIF = 100;
+
+    public const T_OPEN_PARENTHESES = 110;
+
+    public const T_CLOSE_PARENTHESES = 120;
+
+    public const T_CONDITION = 130;
+
     /**
      * @var array
      */
@@ -39,6 +53,13 @@ class Token extends AToken
         self::T_FORMAT,
         self::T_CLOSE,
         self::T_SEPARATOR,
+        self::T_IF,
+        self::T_ELSEIF,
+        self::T_ELSE,
+        self::T_ENDIF,
+        self::T_OPEN_PARENTHESES,
+        self::T_CLOSE_PARENTHESES,
+        self::T_CONDITION,
     ];
 
     /**

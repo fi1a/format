@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Fi1a\Unit\Format;
 
+use Fi1a\Format\Exception\FormatErrorException;
 use Fi1a\Format\Formatter;
 use Fi1a\Unit\Format\Fixtures\FormatClass;
 use PHPUnit\Framework\TestCase;
@@ -295,6 +296,96 @@ class FormatterTest extends TestCase
                 ],
                 '2 1 {{key2}}',
             ],
+            [
+                '{{if(key1:key2)}}{{key1:key2}}{{endif}}',
+                [
+                    'key1' => [
+                        'key2' => 2,
+                    ],
+                ],
+                '2',
+            ],
+            [
+                '{{if(key1:key3)}}{{key1:key2}}{{endif}}',
+                [
+                    'key1' => [
+                        'key2' => 2,
+                        'key3' => 3,
+                    ],
+                ],
+                '2',
+            ],
+            [
+                '{{if(key1)}} {{key1:key2}} {{key1:key3}} {{endif}}',
+                [
+                    'key1' => [
+                        'key2' => 2,
+                        'key3' => 3,
+                    ],
+                ],
+                ' 2 3 ',
+            ],
+            [
+                '{{if(key1:key4)}}{{key1:key2}} {{endif}}{{key1:key3}}',
+                [
+                    'key1' => [
+                        'key2' => 2,
+                        'key3' => 3,
+                    ],
+                ],
+                '3',
+            ],
+            [
+                ' {{if(key1:key2)}}{{key1:key2}}{{if(key1:key)}} {{key1:key3}}{{endif}}'
+                . '{{if(key1:key4)}} {{key1:key4}}{{endif}}{{endif}} ',
+                [
+                    'key1' => [
+                        'key2' => 2,
+                        'key3' => 3,
+                        'key4' => 4,
+                    ],
+                ],
+                ' 2 4 ',
+            ],
+            [
+                '{{if(key1:key4)}}{{key1:key2}}{{else}}{{key1:key3}}{{endif}}',
+                [
+                    'key1' => [
+                        'key2' => 2,
+                        'key3' => 3,
+                    ],
+                ],
+                '3',
+            ],
+            [
+                '{{if(key1:key5)}}{{key1:key2}}{{elseif(key1:key4)}}{{key1:key4}}{{endif}}',
+                [
+                    'key1' => [
+                        'key2' => 2,
+                        'key3' => 3,
+                        'key4' => 4,
+                    ],
+                ],
+                '4',
+            ],
+            [
+                'beforeText {{if(key1:key5)}}{{key1:key2}}{{elseif(key1:key4)}}{{key1:key4}}{{endif}} afterText',
+                [
+                    'key1' => [
+                        'key2' => 2,
+                        'key3' => 3,
+                        'key4' => 4,
+                    ],
+                ],
+                'beforeText 4 afterText',
+            ],
+            [
+                'beforeText {{if(true)}}{{key1}}{{endif}} afterText',
+                [
+                    'key1' => 1,
+                ],
+                'beforeText  afterText',
+            ],
         ];
     }
 
@@ -309,5 +400,66 @@ class FormatterTest extends TestCase
     {
         setlocale(LC_ALL, 'en_US.UTF-8');
         $this->assertEquals($equal, Formatter::format($string, $values));
+    }
+
+    /**
+     * Данные для метода Formatter::format
+     *
+     * @return mixed[]
+     */
+    public function dataFormatConditionExceptions(): array
+    {
+        return [
+            [
+                '{{if(key1){{key1:key2}}{{endif}}',
+                [
+                    'key1' => [
+                        'key2' => 2,
+                        'key3' => 3,
+                        'key4' => 4,
+                    ],
+                ],
+            ],
+            [
+                '{{if(key1)}}{{key1:key2}}',
+                [
+                    'key1' => [
+                        'key2' => 2,
+                        'key3' => 3,
+                        'key4' => 4,
+                    ],
+                ],
+            ],
+            [
+                '{{if(key1)}}{{key1:key2}}endif}}',
+                [
+                    'key1' => [
+                        'key2' => 2,
+                        'key3' => 3,
+                        'key4' => 4,
+                    ],
+                ],
+            ],
+            [
+                '{{if(key1)}}',
+                [
+                    'key1' => 1,
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Форматирование и подстановка значений в строке
+     *
+     * @param mixed[]  $values
+     *
+     * @dataProvider dataFormatConditionExceptions
+     */
+    public function testFormatConditionExceptions(string $string, array $values): void
+    {
+        setlocale(LC_ALL, 'en_US.UTF-8');
+        $this->expectException(FormatErrorException::class);
+        Formatter::format($string, $values);
     }
 }

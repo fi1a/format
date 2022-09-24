@@ -43,6 +43,15 @@ class Tokenizer extends ATokenizer
             4 => Token::T_FORMAT,
             5 => Token::T_CLOSE,
         ];
+        /**
+         * @var int[] $conditionalSatements
+         */
+        static $conditionalSatements = [
+            'if' => Token::T_IF,
+            'elseif' => Token::T_ELSEIF,
+            'else' => Token::T_ELSE,
+            'endif' => Token::T_ENDIF,
+        ];
 
         foreach ($matches as $match) {
             $image = substr($source, $pos, $match[1][1] - $pos);
@@ -58,6 +67,53 @@ class Tokenizer extends ATokenizer
                 if (!array_key_exists($index, $match) || $match[$index][0] === '') {
                     continue;
                 }
+
+                if (
+                    $type === Token::T_VARIABLE
+                    && array_key_exists(mb_strtolower($match[$index][0]), $conditionalSatements)
+                ) {
+                    $type = $conditionalSatements[mb_strtolower($match[$index][0])];
+                }
+
+                if ($type === Token::T_FORMAT) {
+                    $formatMatch = [];
+                    if (
+                        preg_match(
+                            '/^([0-9\w\_\-]*)(\(+)([0-9\w\_\-\:]+)(\)+)$/mui',
+                            $match[$index][0],
+                            $formatMatch
+                        ) !== false
+                        && count($formatMatch)
+                    ) {
+                        $tokens[] = $this->getToken(
+                            Token::T_OPEN_PARENTHESES,
+                            $formatMatch[2],
+                            $startLine,
+                            $endLine,
+                            $startColumn,
+                            $endColumn
+                        );
+                        $tokens[] = $this->getToken(
+                            Token::T_CONDITION,
+                            $formatMatch[3],
+                            $startLine,
+                            $endLine,
+                            $startColumn,
+                            $endColumn
+                        );
+                        $tokens[] = $this->getToken(
+                            Token::T_CLOSE_PARENTHESES,
+                            $formatMatch[4],
+                            $startLine,
+                            $endLine,
+                            $startColumn,
+                            $endColumn
+                        );
+
+                        continue;
+                    }
+                }
+
                 $tokens[] = $this->getToken(
                     $type,
                     $match[$index][0],
