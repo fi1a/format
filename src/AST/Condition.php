@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Fi1a\Format;
+namespace Fi1a\Format\AST;
 
-use Fi1a\Collection\DataType\MapArrayObject;
+use Fi1a\Collection\Collection;
 
 /**
  * Условия форматирования строки
  */
-class Condition extends MapArrayObject
+class Condition extends Collection
 {
     /**
      * Удовлетворяет условию или нет

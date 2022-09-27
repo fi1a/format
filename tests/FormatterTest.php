@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Fi1a\Unit\Format;
 
-use Fi1a\Format\Exception\FormatErrorException;
+use Fi1a\Format\AST\Exception\FormatErrorException;
+use Fi1a\Format\Exception\SpecifierNotFoundException;
 use Fi1a\Format\Formatter;
 use Fi1a\Unit\Format\Fixtures\FormatClass;
 use PHPUnit\Framework\TestCase;
@@ -24,21 +25,76 @@ class FormatterTest extends TestCase
     {
         return [
             [
-                '{{fix:fix3:fix4:fix5}} {{not_exist}} {{fix:fix3}}{{fix}}',
+                '{{}}',
+                ['value'],
+                'value',
+            ],
+            [
+                '{{   }}',
+                ['value'],
+                'value',
+            ],
+            [
+                '{{}} {{}}',
+                ['value1', 'value2'],
+                'value1 value2',
+            ],
+            [
+                '{{key1:key2}} {{key1:key3}}',
+                [
+                    'key1' => [
+                        'key2' => 'value2',
+                        'key3' => 'value3',
+                    ],
+                ],
+                'value2 value3',
+            ],
+            [
+                '{{  key1:key2  }} {{  key1:key3  }}',
+                [
+                    'key1' => [
+                        'key2' => 'value2',
+                        'key3' => 'value3',
+                    ],
+                ],
+                'value2 value3',
+            ],
+            [
+                '{{fix:fix3:fix4:fix5}} {{fix:fix3}}{{fix}}',
                 [
                     'fix' => new FormatClass(),
                 ],
-                '5 {{not_exist}} arrayFIX',
+                '5 arrayFIX',
             ],
             [
-                '{{fix:fix1}} {{fix:fix2|1.1f}}',
+                'text {{|sprintf}} text',
+                ['value'],
+                'text value text',
+            ],
+            [
+                'text {{  key1:key2  |  sprintf  }} text',
+                [
+                    'key1' => [
+                        'key2' => 'value2',
+                        'key3' => 'value3',
+                    ],
+                ],
+                'text value2 text',
+            ],
+            [
+                'text {{|sprintf()}} text',
+                ['value'],
+                'text value text',
+            ],
+            [
+                '{{fix:fix1}} {{fix:fix2|sprintf("1.1f")}}',
                 [
                     'fix' => new FormatClass(),
                 ],
                 'string 20.0',
             ],
             [
-                "{{array:key2|d}}, {{\n array:key1 \t |1.1f}}",
+                "{{array:key2|sprintf('d')}}, {{\n array:key1 \t |sprintf('1.1f')}}",
                 [
                     'array' => [
                         'key1' => 10,
@@ -48,7 +104,7 @@ class FormatterTest extends TestCase
                 '20, 10.0',
             ],
             [
-                "{{key2|d}}, {{\n key1 \t |1.1f}}",
+                "{{key2|sprintf('d')}}, {{\n key1 \t |sprintf('1.1f')}}",
                 [
                     'key1' => 10,
                     'key2' => 20,
@@ -56,7 +112,7 @@ class FormatterTest extends TestCase
                 '20, 10.0',
             ],
             [
-                "{{key4|d}}, {{\n key2 \t |1.1f}}",
+                "{{key4|sprintf('d')}}, {{\n key2 \t |sprintf('1.1f')}}",
                 [
                     'key1' => null,
                     'key2' => 10,
@@ -66,7 +122,7 @@ class FormatterTest extends TestCase
                 '20, 10.0',
             ],
             [
-                "{{key2|d}}, {{\n key1 \t |02d}}",
+                "{{key2|sprintf('d')}}, {{\n key1 \t |sprintf('02d')}}",
                 [
                     'key1' => 1,
                     'key2' => 2,
@@ -74,7 +130,7 @@ class FormatterTest extends TestCase
                 '2, 01',
             ],
             [
-                "{{key2|d}}, {{\n key1 \t | \t 02d\n }}",
+                "{{key2|sprintf('d')}}, {{\n key1 \t | \t sprintf('02d')\n }}",
                 [
                     'key1' => 1,
                     'key2' => 2,
@@ -98,7 +154,7 @@ class FormatterTest extends TestCase
                 '2.2222, 1.1111',
             ],
             [
-                "{{key2|}}, {{\n key1 \t }}",
+                "{{key2}}, {{\n key1 \t }}",
                 [
                     'key1' => 1.1111,
                     'key2' => 2.2222,
@@ -106,113 +162,113 @@ class FormatterTest extends TestCase
                 '2.2222, 1.1111',
             ],
             [
-                "{{|s}}, {{\n key1 \t }}",
+                "{{|sprintf('s')}}, {{\n key1 \t }}",
                 [
                     'key1' => 1.1111,
-                    'key2' => 2.2222,
+                    0 => 2.2222,
                 ],
-                '{{|}}, 1.1111',
+                '2.2222, 1.1111',
             ],
             [
-                "{{0|'.9d}}",
+                "{{0|sprintf('\'.9d')}}",
                 [
                     123,
                 ],
                 '......123',
             ],
             [
-                "%b = '{{0|b}}'",
+                "%b = '{{0|sprintf('b')}}'",
                 [
                     43951789,
                 ],
                 '%b = \'10100111101010011010101101\'',
             ],
             [
-                "%%b%%% = '{{0|b}}'",
+                "%%b%%% = '{{0|sprintf('b')}}'",
                 [
                     43951789,
                 ],
                 '%%b%%% = \'10100111101010011010101101\'',
             ],
             [
-                "%%b%%% = '{{0|b}}' %d%%%d\$d%",
+                "%%b%%% = '{{0|sprintf('b')}}' %d%%%d\$d%",
                 [
                     43951789,
                 ],
                 '%%b%%% = \'10100111101010011010101101\' %d%%%d$d%',
             ],
             [
-                "%b = '{{0|b}}' $0%d",
+                "%b = '{{0|sprintf('b')}}' $0%d",
                 [
                     43951789,
                 ],
                 '%b = \'10100111101010011010101101\' $0%d',
             ],
             [
-                "%c = '{{0|c}}'",
+                "%c = '{{0|sprintf('c')}}'",
                 [
                     65,
                 ],
                 '%c = \'A\'',
             ],
             [
-                "%e = '{{0|e}}'",
+                "%e = '{{0|sprintf('e')}}'",
                 [
                     43951789,
                 ],
                 '%e = \'4.395179e+7\'',
             ],
             [
-                "%+d = '{{0|+d}}'",
+                "%+d = '{{0|sprintf('+d')}}'",
                 [
                     43951789,
                 ],
                 '%+d = \'+43951789\'',
             ],
             [
-                "%+d = '{{0|+d}}'",
+                "%+d = '{{0|sprintf('+d')}}'",
                 [
                     -43951789,
                 ],
                 '%+d = \'-43951789\'',
             ],
             [
-                '{{0|10s}}',
+                '{{0|sprintf("10s")}}',
                 [
                     'string',
                 ],
                 '    string',
             ],
             [
-                '{{0|-10s}}',
+                '{{0|sprintf("-10s")}}',
                 [
                     'string',
                 ],
                 'string    ',
             ],
             [
-                '{{0|010s}}',
+                '{{0|sprintf(\'010s\')}}',
                 [
                     'string',
                 ],
                 '0000string',
             ],
             [
-                "{{0|'#10s}}",
+                "{{0|sprintf('\'#10s')}}",
                 [
                     'string',
                 ],
                 '####string',
             ],
             [
-                '{{0|10.10s}}',
+                '{{0|sprintf(\'10.10s\')}}',
                 [
                     'string value',
                 ],
                 'string val',
             ],
             [
-                '{{0|04d}}-{{1|02d}}-{{2|02d}}',
+                '{{0|sprintf(\'04d\')}}-{{1|sprintf(\'02d\')}}-{{2|sprintf(\'02d\')}}',
                 [
                     2016,
                     2,
@@ -249,30 +305,11 @@ class FormatterTest extends TestCase
                 '0',
             ],
             [
-                '{{not_exist}}',
-                [],
-                '{{not_exist}}',
-            ],
-            [
-                '{{key:key:key}}',
-                [
-                    'key' => new static(),
-                ],
-                '{{key:key:key}}',
-            ],
-            [
                 '{{}} {{}} {{}}',
                 [
                     1, 2 ,3,
                 ],
                 '1 2 3',
-            ],
-            [
-                '{{',
-                [
-                    1,
-                ],
-                '{{',
             ],
             [
                 '{{}}',
@@ -282,28 +319,59 @@ class FormatterTest extends TestCase
                 '1',
             ],
             [
-                '{{}} {{key',
+                '{{|sprintf(false, true, null)}}',
                 [
                     1,
                 ],
-                '1 {{key',
+                '1',
             ],
             [
-                '{{key1}} {{}} {{key2}}',
+                '{{key1:key2|sprintf(modifier)}}',
                 [
-                    1,
-                    'key1' => 2,
+                    'key1' => [
+                        'key2' => 123,
+                    ],
+                    'modifier' => '\'.9d',
                 ],
-                '2 1 {{key2}}',
+                '......123',
             ],
             [
-                '{{if(key1:key2)}}{{key1:key2}}{{endif}}',
+                '{{if ( key1:key2 ) }}{{ key1:key2 }}{{ endif }}',
                 [
                     'key1' => [
                         'key2' => 2,
                     ],
                 ],
                 '2',
+            ],
+            [
+                'text{{if(key1:key2)}}{{key1:key2}}{{endif}}value',
+                [
+                    'key1' => [
+                        'key2' => false,
+                    ],
+                ],
+                'textvalue',
+            ],
+            [
+                'text{{if(key1:key2)}}{{key1:key2}}{{else}}{{key1:key3}}{{endif}}value',
+                [
+                    'key1' => [
+                        'key2' => false,
+                        'key3' => '_',
+                    ],
+                ],
+                'text_value',
+            ],
+            [
+                'text{{if(key1:key2)}}{{key1:key2}}{{elseif(key1:key3)}}{{key1:key3}}{{endif}}value',
+                [
+                    'key1' => [
+                        'key2' => false,
+                        'key3' => '_',
+                    ],
+                ],
+                'text_value',
             ],
             [
                 '{{if(key1:key3)}}{{key1:key2}}{{endif}}',
@@ -316,7 +384,7 @@ class FormatterTest extends TestCase
                 '2',
             ],
             [
-                '{{if(key1)}} {{key1:key2}} {{key1:key3}} {{endif}}',
+                '{{if(true)}} {{key1:key2}} {{key1:key3}} {{endif}}',
                 [
                     'key1' => [
                         'key2' => 2,
@@ -384,7 +452,70 @@ class FormatterTest extends TestCase
                 [
                     'key1' => 1,
                 ],
-                'beforeText  afterText',
+                'beforeText 1 afterText',
+            ],
+            [
+                '{{if(key1:key2 && key1:key3)}}{{key1:key2}} {{key1:key3}}{{endif}}',
+                [
+                    'key1' => [
+                        'key2' => 2,
+                        'key3' => 3,
+                    ],
+                ],
+                '2 3',
+            ],
+            [
+                '{{if(key1:key2)}}{{key1:key2}}{{if(false)}}{{key1:key3}}{{else}} else{{endif}}{{endif}}',
+                [
+                    'key1' => [
+                        'key2' => 2,
+                        'key3' => 3,
+                    ],
+                ],
+                '2 else',
+            ],
+            [
+                '{{if(key1:key2&&key1:key3)}}{{key1:key2}}{{endif}}',
+                [
+                    'key1' => [
+                        'key2' => 2,
+                        'key3' => 3,
+                    ],
+                ],
+                '2',
+            ],
+            [
+                '{{|sprintf(key1 , key2)}}',
+                [
+                    1,
+                    'key1' => false,
+                    'key2' => true,
+                ],
+                '1',
+            ],
+            [
+                '{{|sprintf(key1,key2)}}',
+                [
+                    1,
+                    'key1' => false,
+                    'key2' => true,
+                ],
+                '1',
+            ],
+            [
+                '{{|sprintf()}}',
+                [
+                    null,
+                ],
+                'null',
+            ],
+            [
+                '{{if(foo)}}{{bar}}{{else}}false{{endif}}',
+                [
+                    'foo' => true,
+                    'bar' => 'bar',
+                ],
+                'bar',
             ],
         ];
     }
@@ -410,6 +541,16 @@ class FormatterTest extends TestCase
     public function dataFormatConditionExceptions(): array
     {
         return [
+            [
+                '{{if(key1)}}{{key1:key2}}{{endif}}',
+                [
+                    'key1' => [
+                        'key2' => 2,
+                        'key3' => 3,
+                        'key4' => 4,
+                    ],
+                ],
+            ],
             [
                 '{{if(key1){{key1:key2}}{{endif}}',
                 [
@@ -446,6 +587,138 @@ class FormatterTest extends TestCase
                     'key1' => 1,
                 ],
             ],
+            [
+                '{{key1|}}',
+                [
+                    'key1' => 1,
+                ],
+            ],
+            [
+                '{{key1|sprintf( , )}}',
+                [
+                    'key1' => 1,
+                ],
+            ],
+            [
+                '{{key1|sprintf("0d)}}',
+                [
+                    'key1' => 1,
+                ],
+            ],
+            [
+                '{{key1|sprintf("0d", "0d" "0d")}}',
+                [
+                    'key1' => 1,
+                ],
+            ],
+            [
+                '{{key1|sprintf(}}',
+                [
+                    'key1' => 1,
+                ],
+            ],
+            [
+                '{{key1|sprintf("}}',
+                [
+                    'key1' => 1,
+                ],
+            ],
+            [
+                '{{key1|sprintf(" }}',
+                [
+                    'key1' => 1,
+                ],
+            ],
+            [
+                '{{key1|sprintf("0d" , }}',
+                [
+                    'key1' => 1,
+                ],
+            ],
+            [
+                '{{if}}',
+                [
+                    'key1' => 1,
+                ],
+            ],
+            [
+                '{{if(key1}}',
+                [
+                    'key1' => 1,
+                ],
+            ],
+            [
+                '{{if()}}',
+                [
+                    'key1' => 1,
+                ],
+            ],
+            [
+                '{{key1',
+                [
+                    'key1' => 1,
+                ],
+            ],
+            [
+                'key1}}',
+                [
+                    'key1' => 1,
+                ],
+            ],
+            [
+                '{{if( )}}',
+                [
+                    'key1' => 1,
+                ],
+            ],
+            [
+                '{{key1}',
+                [
+                    'key1' => 1,
+                ],
+            ],
+            [
+                '{{key1|',
+                [
+                    'key1' => 1,
+                ],
+            ],
+            [
+                '{{key1|sprintf(',
+                [
+                    'key1' => 1,
+                ],
+            ],
+            [
+                '{{key1|sprintf( ',
+                [
+                    'key1' => 1,
+                ],
+            ],
+            [
+                '{{key1|sprintf("',
+                [
+                    'key1' => 1,
+                ],
+            ],
+            [
+                '{{key1|sprintf("123"',
+                [
+                    'key1' => 1,
+                ],
+            ],
+            [
+                '{{if',
+                [
+                    'key1' => 1,
+                ],
+            ],
+            [
+                '{{if ',
+                [
+                    'key1' => 1,
+                ],
+            ],
         ];
     }
 
@@ -461,5 +734,14 @@ class FormatterTest extends TestCase
         setlocale(LC_ALL, 'en_US.UTF-8');
         $this->expectException(FormatErrorException::class);
         Formatter::format($string, $values);
+    }
+
+    /**
+     * Исключение при отсутсвии спецификатора
+     */
+    public function testSpecifierNotFoundException(): void
+    {
+        $this->expectException(SpecifierNotFoundException::class);
+        Formatter::format('{{|unknown()}}', [1]);
     }
 }

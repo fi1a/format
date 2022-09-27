@@ -18,7 +18,7 @@ composer require fi1a/format
 ```
 
 **Внимание!** Совместимость версий не гарантируется при переходе major или minor версии.
-Указывайте допустимую версию пакета в своем проекте следующим образом: ```"fi1a/format": ">=1.0.0 <1.1.0"```.
+Указывайте допустимую версию пакета в своем проекте следующим образом: ```"fi1a/format": ">=1.1.0 <1.2.0"```.
 
 ## Использование
 
@@ -29,19 +29,34 @@ Formatter::format('[{{user:login}}] - {{user:name}}', ['user' => ['name' => 'Joh
 
 Formatter::format('{{0}}, {{1}}',[1, 2]); // 1, 2
 
+Formatter::format('{{}}, {{}}',[1, 2]); // 1, 2
+
 Formatter::format('{{foo}}, {{foo}}, {{foo}}', ['foo' => 'bar',]); // bar, bar, bar
 ```
 
-### Использование спецификаторов
+При отсутствии ключа в массиве значений выбрасывается исключение ```\Fi1a\Format\AST\Exception\NotFoundKey```
 
-Указание спецификатора следует после указания ключа с разделителем "|".
+```php
+use Fi1a\Format\Formatter;
+use Fi1a\Format\AST\Exception\NotFoundKey;
+
+try {
+    Formatter::format('{{not_exists}}', []);
+} catch (NotFoundKey $exception) {
+    
+}
+```
+
+### Использование функций спецификаторов
+
+Указание функции спецификатора следует после указания ключа с разделителем "|".
 
 Пример:
 
 ```php
 use Fi1a\Format\Formatter;
 
-Formatter::format('{{0|04d}}-{{1|02d}}-{{2|02d}}',[2016, 2, 27,]); // 2016-02-27
+Formatter::format('{{0|sprintf("04d")}}-{{1|sprintf("02d")}}-{{2|sprintf("02d")}}',[2016, 2, 27,]); // 2016-02-27
 ```
 
 #### C доступом по пути
@@ -62,11 +77,12 @@ Formatter::format('[{{user:login}}] - {{user:name}}', ['user' => ['name' => 'Joh
 use Fi1a\Format\Formatter;
 
 Formatter::format('{{0}}, {{1}}',[1, 2]); // 1, 2
+Formatter::format('{{}}, {{}}',[3, 4]); // 3, 4
 ```
 
-#### Спецификаторы
+#### Спецификаторы функции sprintf
 
-Указание спецификатора следует после указания ключа с разделителем "|".
+Указание функции спецификатора следует после указания ключа с разделителем "|".
 
 Спецификаторы используемые в функции [sprintf](https://www.php.net/manual/ru/function.sprintf.php).
 
@@ -88,8 +104,8 @@ Formatter::format('{{0}}, {{1}}',[1, 2]); // 1, 2
 ```php
 use Fi1a\Format\Formatter;
 
-Formatter::format('{{0|\'.9d}}', [123]); // ......123
-Formatter::format('{{0|\'.09d}}', [123]); // 000000123
+Formatter::format('{{0|sprintf("\'.9d")}}', [123]); // ......123
+Formatter::format('{{0|sprintf("\'.09d")}}', [123]); // 000000123
 ```
 
 #### Целое с лидирующими нулями
@@ -97,7 +113,7 @@ Formatter::format('{{0|\'.09d}}', [123]); // 000000123
 ```php
 use Fi1a\Format\Formatter;
 
-Formatter::format('{{0|04d}}-{{1|02d}}-{{2|02d}}', [2020, 6, 7]); // 2020-06-07
+Formatter::format('{{0|sprintf("04d")}}-{{1|sprintf("02d")}}-{{2|sprintf("02d")}}', [2020, 6, 7]); // 2020-06-07
 ```
 
 #### Форматирование денежных единиц
@@ -105,7 +121,30 @@ Formatter::format('{{0|04d}}-{{1|02d}}-{{2|02d}}', [2020, 6, 7]); // 2020-06-07
 ```php
 use Fi1a\Format\Formatter;
 
-Formatter::format('{{0|01.2f}}', [100.5]); // 100.50
+Formatter::format('{{0|sprintf("01.2f")}}', [100.5]); // 100.50
+```
+
+#### Спецификатор из массива со значениями
+
+Спецификатор можно динамически задавать через массив со значениями.
+
+```php
+use Fi1a\Format\Formatter;
+
+Formatter::format('{{value|sprintf(modifier)}}', ['value' => 100.5, 'modifier' => "01.2f"]); // 100.50
+```
+
+### Условные конструкции
+
+Доступны следующий условные конструкции: ```if, elseif, else, endif```.
+При отсутствии ключа в массиве значений исключение не выбрасывается.
+
+```php
+use Fi1a\Format\Formatter;
+
+Formatter::format('{{if(foo)}}{{bar}}{{else}}false{{endif}}', ['foo' => true, 'bar' => 'bar']); // bar
+
+Formatter::format('{{if(not_exists)}}{{foo}}{{elseif(bar)}}{{bar}}{{endif}}', ['foo' => 'foo', 'bar' => 'bar']); // bar
 ```
 
 [badge-release]: https://img.shields.io/packagist/v/fi1a/format?label=release

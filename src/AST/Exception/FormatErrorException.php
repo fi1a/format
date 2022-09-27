@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Fi1a\Format\Exception;
+namespace Fi1a\Format\AST\Exception;
 
 /**
  * Исключение при ошибке в форматировании строки
