@@ -72,7 +72,7 @@ class Formatter implements IFormatter
      *
      * @param mixed ...$modifiers
      */
-    private function sprintf(string $value, ...$modifiers): string
+    private static function sprintf(string $value, ...$modifiers): string
     {
         $modifier = (string) reset($modifiers);
         if (!$modifier) {
