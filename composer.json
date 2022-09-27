@@ -33,7 +33,10 @@
   "autoload": {
     "psr-4": {
       "Fi1a\\Format\\": "src"
-    }
+    },
+    "files": [
+      "src/configure.php"
+    ]
   },
   "autoload-dev": {
     "psr-4": {

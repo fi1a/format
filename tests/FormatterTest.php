@@ -7,7 +7,9 @@ namespace Fi1a\Unit\Format;
 use Fi1a\Format\AST\Exception\FormatErrorException;
 use Fi1a\Format\Exception\SpecifierNotFoundException;
 use Fi1a\Format\Formatter;
+use Fi1a\Format\Specifier\ISpecifier;
 use Fi1a\Unit\Format\Fixtures\FormatClass;
+use Fi1a\Unit\Format\Fixtures\Specifier;
 use PHPUnit\Framework\TestCase;
 
 use const LC_ALL;
@@ -319,7 +321,7 @@ class FormatterTest extends TestCase
                 '1',
             ],
             [
-                '{{|sprintf(false, true, null)}}',
+                '{{|spf(false, true, null)}}',
                 [
                     1,
                 ],
@@ -485,7 +487,7 @@ class FormatterTest extends TestCase
                 '2',
             ],
             [
-                '{{|sprintf(key1 , key2)}}',
+                '{{|spf(key1 , key2)}}',
                 [
                     1,
                     'key1' => false,
@@ -494,7 +496,7 @@ class FormatterTest extends TestCase
                 '1',
             ],
             [
-                '{{|sprintf(key1,key2)}}',
+                '{{|spf(key1,key2)}}',
                 [
                     1,
                     'key1' => false,
@@ -517,6 +519,13 @@ class FormatterTest extends TestCase
                 ],
                 'bar',
             ],
+            [
+                '{{foo|spf(0, 1)}}',
+                [
+                    'foo' => 'foo',
+                ],
+                'foo',
+            ],
         ];
     }
 
@@ -529,6 +538,7 @@ class FormatterTest extends TestCase
      */
     public function testFormat(string $string, array $values, string $equal)
     {
+        Formatter::addSpecifier('spf', Specifier::class);
         setlocale(LC_ALL, 'en_US.UTF-8');
         $this->assertEquals($equal, Formatter::format($string, $values));
     }
@@ -743,5 +753,64 @@ class FormatterTest extends TestCase
     {
         $this->expectException(SpecifierNotFoundException::class);
         Formatter::format('{{|unknown()}}', [1]);
+    }
+
+    /**
+     * Тестирование методов работы со спецификаторами
+     */
+    public function testSpecifier(): void
+    {
+        $this->assertTrue(Formatter::addSpecifier('spf_test', Specifier::class));
+        $this->assertFalse(Formatter::addSpecifier('spf_test', Specifier::class));
+        $this->assertTrue(Formatter::hasSpecifier('spf_test'));
+        $this->assertFalse(Formatter::hasSpecifier('unknown'));
+        $this->assertInstanceOf(ISpecifier::class, Formatter::getSpecifier('spf_test'));
+        $this->assertFalse(Formatter::deleteSpecifier('unknown'));
+        $this->assertTrue(Formatter::deleteSpecifier('spf_test'));
+    }
+
+    /**
+     * Тестирование методов работы со спецификаторами (исключение при пустом значении)
+     */
+    public function testAddSpecifierEmptyName(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        Formatter::addSpecifier('', Specifier::class);
+    }
+
+    /**
+     * Тестирование методов работы со спецификаторами (исключение)
+     */
+    public function testAddSpecifierNotImplements(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        Formatter::addSpecifier('spf_test', static::class);
+    }
+
+    /**
+     * Тестирование методов работы со спецификаторами (исключение при пустом значении)
+     */
+    public function testHasSpecifierEmptyName(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        Formatter::hasSpecifier('');
+    }
+
+    /**
+     * Тестирование методов работы со спецификаторами (исключение при пустом значении)
+     */
+    public function testDeleteSpecifierEmptyName(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        Formatter::deleteSpecifier('');
+    }
+
+    /**
+     * Тестирование методов работы со спецификаторами (исключение при пустом значении)
+     */
+    public function testGetSpecifierEmptyName(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        Formatter::getSpecifier('');
     }
 }

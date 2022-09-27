@@ -147,6 +147,20 @@ Formatter::format('{{if(foo)}}{{bar}}{{else}}false{{endif}}', ['foo' => true, 'b
 Formatter::format('{{if(not_exists)}}{{foo}}{{elseif(bar)}}{{bar}}{{endif}}', ['foo' => 'foo', 'bar' => 'bar']); // bar
 ```
 
+### Добавление функций спецификаторов
+
+Класс функции спецификатора должен реализовывать интерфейс ```\Fi1a\Format\Specifier\ISpecifier```
+
+Добавление новой функции спецификатора осуществляется с помощью метода ```Fi1a\Format\Formatter::addSpecifier()```:
+
+```php
+use Fi1a\Format\Formatter;
+
+Formatter::addSpecifier('spf', Specifier::class); // true
+
+Formatter::format('{{foo|spf(true)}}', ['foo' => 'foo']); // foo
+```
+
 [badge-release]: https://img.shields.io/packagist/v/fi1a/format?label=release
 [badge-license]: https://img.shields.io/github/license/fi1a/format?style=flat-square
 [badge-php]: https://img.shields.io/packagist/php-v/fi1a/format?style=flat-square

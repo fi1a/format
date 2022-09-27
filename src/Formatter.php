@@ -9,6 +9,7 @@ use Fi1a\Format\AST\INode;
 use Fi1a\Format\AST\IText;
 use Fi1a\Format\AST\IVariable;
 use Fi1a\Format\Exception\SpecifierNotFoundException;
+use Fi1a\Format\Specifier\ISpecifier;
 
 /**
  * Форматирование строковых шаблонов
@@ -16,13 +17,15 @@ use Fi1a\Format\Exception\SpecifierNotFoundException;
 class Formatter implements IFormatter
 {
     /**
+     * @var string[]
+     */
+    private static $specifiers = [];
+
+    /**
      * @inheritDoc
      */
     public static function format(string $string, array $values = []): string
     {
-        $specifiers = [
-            'sprintf',
-        ];
         $ast = new AST($string, $values);
         $formatted = '';
 
@@ -34,11 +37,7 @@ class Formatter implements IFormatter
                 $value = static::convert($node->getValue());
                 $specifier = $node->getSpecifier();
                 if ($specifier) {
-                    if (!in_array($specifier->getName(), $specifiers)) {
-                        throw new SpecifierNotFoundException(
-                            sprintf('Specifier "%s" not exists', $specifier->getName())
-                        );
-                    }
+                    $specifierInstance = static::getSpecifier($specifier->getName());
                     /**
                      * @var mixed[] $args
                      */
@@ -48,7 +47,7 @@ class Formatter implements IFormatter
                         $args[] = $modifier->getValue();
                     }
                     $formatted .= (string) call_user_func_array(
-                        [static::class, $specifier->getName()],
+                        [$specifierInstance, 'format'],
                         $args
                     );
 
@@ -68,19 +67,72 @@ class Formatter implements IFormatter
     }
 
     /**
-     * Спецификатор sprintf
-     *
-     * @param mixed ...$modifiers
+     * @inheritDoc
      */
-    private static function sprintf(string $value, ...$modifiers): string
+    public static function addSpecifier(string $name, string $specifier): bool
     {
-        $modifier = (string) reset($modifiers);
-        if (!$modifier) {
-            $modifier = 's';
+        if (!$name) {
+            throw new \InvalidArgumentException('Parameter "$name" cannot be empty');
         }
-        $modifier = '%1$' . $modifier;
+        if (static::hasSpecifier($name)) {
+            return false;
+        }
+        if (!is_subclass_of($specifier, ISpecifier::class)) {
+            throw new \InvalidArgumentException('The class must implement the interface ' . ISpecifier::class);
+        }
+        static::$specifiers[mb_strtolower($name)] = $specifier;
 
-        return sprintf($modifier, $value);
+        return true;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function hasSpecifier(string $name): bool
+    {
+        if (!$name) {
+            throw new \InvalidArgumentException('Parameter "$name" cannot be empty');
+        }
+
+        return array_key_exists(mb_strtolower($name), static::$specifiers);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function deleteSpecifier(string $name): bool
+    {
+        if (!$name) {
+            throw new \InvalidArgumentException('Parameter "$name" cannot be empty');
+        }
+        if (!static::hasSpecifier($name)) {
+            return false;
+        }
+        unset(static::$specifiers[mb_strtolower($name)]);
+
+        return true;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function getSpecifier(string $name): ISpecifier
+    {
+        if (!$name) {
+            throw new \InvalidArgumentException('Parameter "$name" cannot be empty');
+        }
+        if (!static::hasSpecifier($name)) {
+            throw new SpecifierNotFoundException(
+                sprintf('Specifier "%s" not exists', $name)
+            );
+        }
+        $class = static::$specifiers[mb_strtolower($name)];
+        /**
+         * @var ISpecifier $instance
+         */
+        $instance = new $class();
+
+        return $instance;
     }
 
     /**

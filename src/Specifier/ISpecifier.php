@@ -1,0 +1,18 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Fi1a\Format\Specifier;
+
+/**
+ * Интерфейс спецификатора
+ */
+interface ISpecifier
+{
+    /**
+     * Форматирование значения с переданными модификаторами спецификатора
+     *
+     * @param string[] ...$modifiers
+     */
+    public function format(string $value, array ...$modifiers): string;
+}

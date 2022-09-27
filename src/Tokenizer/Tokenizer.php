@@ -528,7 +528,7 @@ class Tokenizer extends AParseFunction
             if ($symbol === ',' && !$quote && !$single) {
                 $this->commaSeparatorReturn = 'parseSpecifierModifiers';
                 $this->setParseFunction('parseCommaSeparator');
-                if ($image) {
+                if ($image || $image === '0') {
                     $type = Token::T_MODIFIER;
                 }
 
