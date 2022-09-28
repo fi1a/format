@@ -25,6 +25,8 @@ interface IFormatter
      *
      * @param string $string строка для форматирования
      * @param mixed[]  $values значения для подстановки
+     *
+     * @codeCoverageIgnore
      */
     public static function format(string $string, array $values = []): string;
 
