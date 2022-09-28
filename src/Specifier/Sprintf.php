@@ -12,7 +12,7 @@ class Sprintf implements ISpecifier
     /**
      * @inheritDoc
      */
-    public function format(string $value, ...$modifiers): string
+    public function format($value, ...$modifiers): string
     {
         if (count($modifiers) > 1) {
             throw new \InvalidArgumentException('More than one modifier passed');
@@ -28,6 +28,6 @@ class Sprintf implements ISpecifier
         /** @psalm-suppress PossiblyInvalidOperand */
         $modifier = '%1$' . $modifier;
 
-        return sprintf($modifier, $value);
+        return sprintf($modifier, (string) $value);
     }
 }

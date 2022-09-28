@@ -12,7 +12,7 @@ class Specifier implements \Fi1a\Format\Specifier\ISpecifier
     /**
      * @inheritDoc
      */
-    public function format(string $value, ...$modifiers): string
+    public function format($value, ...$modifiers): string
     {
         $modifier = (string) reset($modifiers);
         if (!$modifier) {

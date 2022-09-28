@@ -12,7 +12,8 @@ interface ISpecifier
     /**
      * Форматирование значения с переданными модификаторами спецификатора
      *
-     * @param string[] ...$modifiers
+     * @param mixed $value
+     * @param mixed ...$modifiers
      */
-    public function format(string $value, array ...$modifiers): string;
+    public function format($value, ...$modifiers): string;
 }
