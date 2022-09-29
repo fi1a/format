@@ -212,6 +212,17 @@ use Fi1a\Format\Formatter;
 Formatter::format('{{foo|date("d.m.Y")}}', ['foo' => time()]); // 28.09.2022
 ```
 
+Установить используемый формат по умолчанию:
+
+```php
+use Fi1a\Format\Specifier\Date;
+use Fi1a\Format\Formatter;
+
+Formatter::format('{{foo|date}}', ['foo' => time()]); // 28.09.2022 07:06:00
+Date::setDefaultFormat('d.m.Y');
+Formatter::format('{{foo|date}}', ['foo' => time()]); // 28.09.2022
+```
+
 #### Функция спецификатор escape
 
 Преобразует специальные символы в HTML-сущности `{{|escape(flags, encoding, doubleEncode)}}`
@@ -230,15 +241,6 @@ Formatter::format('{{|escape}}', ['"test"']); // &amp;quot;test&amp;quot;
 use Fi1a\Format\Formatter;
 
 Formatter::format('{{|unescape}}', ['&amp;quot;test&amp;quot;']); // "test"
-```
-
-```php
-use Fi1a\Format\Specifier\Date;
-use Fi1a\Format\Formatter;
-
-Formatter::format('{{foo|date}}', ['foo' => time()]); // 28.09.2022 07:06:00
-Date::setDefaultFormat('d.m.Y');
-Formatter::format('{{foo|date}}', ['foo' => time()]); // 28.09.2022
 ```
 
 ### Условные конструкции
