@@ -75,6 +75,7 @@ Formatter::format('{{}}, {{}}',[3, 4]); // 3, 4
 - date - форматирование даты и времени;
 - sprintf - форматирование строки;
 - escape - преобразует специальные символы в HTML-сущности;
+- unescape - преобразует специальные HTML-сущности обратно в соответствующие символы.
 
 Указание функции спецификатора следует после указания ключа с разделителем "|".
 
@@ -213,7 +214,7 @@ Formatter::format('{{foo|date("d.m.Y")}}', ['foo' => time()]); // 28.09.2022
 
 #### Функция спецификатор escape
 
-Преобразует специальные символы в HTML-сущности `{{|escape(flag, encoding, doubleEncode)}}`
+Преобразует специальные символы в HTML-сущности `{{|escape(flags, encoding, doubleEncode)}}`
 
 ```php
 use Fi1a\Format\Formatter;
@@ -221,6 +222,15 @@ use Fi1a\Format\Formatter;
 Formatter::format('{{|escape}}', ['"test"']); // &amp;quot;test&amp;quot;
 ```
 
+#### Функция спецификатор unescape
+
+Преобразует специальные HTML-сущности обратно в соответствующие символы `{{|escape(flags)}}`
+
+```php
+use Fi1a\Format\Formatter;
+
+Formatter::format('{{|unescape}}', ['&amp;quot;test&amp;quot;']); // "test"
+```
 
 ```php
 use Fi1a\Format\Specifier\Date;

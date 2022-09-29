@@ -6,10 +6,12 @@ use Fi1a\Format\Formatter;
 use Fi1a\Format\Specifier\Date as DateSpecifier;
 use Fi1a\Format\Specifier\Escape;
 use Fi1a\Format\Specifier\Sprintf;
+use Fi1a\Format\Specifier\UnEscape;
 
 Formatter::addSpecifier('sprintf', Sprintf::class);
 Formatter::addSpecifier('date', DateSpecifier::class);
 Formatter::addSpecifier('escape', Escape::class);
+Formatter::addSpecifier('unescape', UnEscape::class);
 
 DateSpecifier::setDayOfWeek3('ru', [
     'Mon' => 'Пн',
