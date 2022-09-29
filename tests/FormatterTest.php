@@ -10,6 +10,7 @@ use Fi1a\Format\Formatter;
 use Fi1a\Format\Specifier\ISpecifier;
 use Fi1a\Unit\Format\Fixtures\FormatClass;
 use Fi1a\Unit\Format\Fixtures\Specifier;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 use const LC_ALL;
@@ -40,6 +41,11 @@ class FormatterTest extends TestCase
                 '{{}} {{}}',
                 ['value1', 'value2'],
                 'value1 value2',
+            ],
+            [
+                '{{}} {{0}} {{}}',
+                ['value1', 'value2'],
+                'value1 value1 value2',
             ],
             [
                 '{{key1:key2}} {{key1:key3}}',
@@ -774,7 +780,7 @@ class FormatterTest extends TestCase
      */
     public function testAddSpecifierEmptyName(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         Formatter::addSpecifier('', Specifier::class);
     }
 
@@ -783,7 +789,7 @@ class FormatterTest extends TestCase
      */
     public function testAddSpecifierNotImplements(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         Formatter::addSpecifier('spf_test', static::class);
     }
 
@@ -792,7 +798,7 @@ class FormatterTest extends TestCase
      */
     public function testHasSpecifierEmptyName(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         Formatter::hasSpecifier('');
     }
 
@@ -801,7 +807,7 @@ class FormatterTest extends TestCase
      */
     public function testDeleteSpecifierEmptyName(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         Formatter::deleteSpecifier('');
     }
 
@@ -810,7 +816,78 @@ class FormatterTest extends TestCase
      */
     public function testGetSpecifierEmptyName(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         Formatter::getSpecifier('');
+    }
+
+    /**
+     * Тестирование методов работы с сокращениями
+     */
+    public function testShortcutMethods(): void
+    {
+        $this->assertTrue(Formatter::addShortcut('spf', 'sprintf("\'.9d")'));
+        $this->assertFalse(Formatter::addShortcut('spf', Specifier::class));
+        $this->assertTrue(Formatter::hasShortcut('spf'));
+        $this->assertFalse(Formatter::hasShortcut('unknown'));
+        $this->assertFalse(Formatter::deleteShortcut('unknown'));
+        $this->assertTrue(Formatter::deleteShortcut('spf'));
+    }
+
+    /**
+     * Тестирование методов работы с сокращениями
+     */
+    public function testShortcut(): void
+    {
+        $this->assertTrue(Formatter::addShortcut('spf', 'sprintf("\'.9d")'));
+        $this->assertEquals(
+            'test ......123......123 test',
+            Formatter::format('test {{|~spf}}{{0|~spf}} test', [123])
+        );
+        $this->assertTrue(Formatter::deleteShortcut('spf'));
+    }
+
+    /**
+     * Тестирование методов работы с сокращениями
+     */
+    public function testShortcutNotFound(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        Formatter::format('{{|~spf}}', [123]);
+    }
+
+    /**
+     * Тестирование методов работы с сокращениями (исключение при пустом значении)
+     */
+    public function testAddShortcutEmptyName(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        Formatter::addShortcut('', 'sprintf("\'.9d")');
+    }
+
+    /**
+     * Тестирование методов работы с сокращениями (исключение при пустом значении)
+     */
+    public function testAddShortcutEmptySpecifier(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        Formatter::addShortcut('spf', '');
+    }
+
+    /**
+     * Тестирование методов работы с сокращениями (исключение при пустом значении)
+     */
+    public function testHasShortcutEmptyName(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        Formatter::hasShortcut('');
+    }
+
+    /**
+     * Тестирование методов работы с сокращениями (исключение при пустом значении)
+     */
+    public function testDeleteShortcutEmptyName(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        Formatter::deleteShortcut('');
     }
 }

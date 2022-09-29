@@ -10,6 +10,9 @@ use Fi1a\Format\AST\IText;
 use Fi1a\Format\AST\IVariable;
 use Fi1a\Format\Exception\SpecifierNotFoundException;
 use Fi1a\Format\Specifier\ISpecifier;
+use InvalidArgumentException;
+
+use const PREG_OFFSET_CAPTURE;
 
 /**
  * Форматирование строковых шаблонов
@@ -22,10 +25,37 @@ class Formatter implements IFormatter
     private static $specifiers = [];
 
     /**
+     * Сокращения
+     *
+     * @var string[]
+     */
+    private static $shortcuts = [];
+
+    /**
      * @inheritDoc
      */
     public static function format(string $string, array $values = []): string
     {
+        $matches = [];
+        while (
+            preg_match(
+                '#(\{\{[\s\t\n]*)([0-9\w\_\:]*)([\s\t\n]*\|[\s\t\n]*|)~([^\}\s\t\n]*)([\s\t\n]*\}\})#',
+                $string,
+                $matches,
+                PREG_OFFSET_CAPTURE
+            )
+        ) {
+            $shortcutName = mb_strtolower($matches[4][0]);
+            if (!isset(static::$shortcuts[$shortcutName])) {
+                throw new InvalidArgumentException(
+                    sprintf('Shortcut "%s" not found', $matches[4][0])
+                );
+            }
+            $string = substr($string, 0, $matches[4][1] - 1)
+                . static::$shortcuts[$shortcutName]
+                . substr($string, $matches[4][1] + mb_strlen($shortcutName));
+        }
+
         $ast = new AST($string, $values);
         $formatted = '';
 
@@ -72,13 +102,13 @@ class Formatter implements IFormatter
     public static function addSpecifier(string $name, string $specifier): bool
     {
         if (!$name) {
-            throw new \InvalidArgumentException('Parameter "$name" cannot be empty');
+            throw new InvalidArgumentException('Argument "$name" cannot be empty');
         }
         if (static::hasSpecifier($name)) {
             return false;
         }
         if (!is_subclass_of($specifier, ISpecifier::class)) {
-            throw new \InvalidArgumentException('The class must implement the interface ' . ISpecifier::class);
+            throw new InvalidArgumentException('The class must implement the interface ' . ISpecifier::class);
         }
         static::$specifiers[mb_strtolower($name)] = $specifier;
 
@@ -91,7 +121,7 @@ class Formatter implements IFormatter
     public static function hasSpecifier(string $name): bool
     {
         if (!$name) {
-            throw new \InvalidArgumentException('Parameter "$name" cannot be empty');
+            throw new InvalidArgumentException('Argument "$name" cannot be empty');
         }
 
         return array_key_exists(mb_strtolower($name), static::$specifiers);
@@ -103,7 +133,7 @@ class Formatter implements IFormatter
     public static function deleteSpecifier(string $name): bool
     {
         if (!$name) {
-            throw new \InvalidArgumentException('Parameter "$name" cannot be empty');
+            throw new InvalidArgumentException('Argument "$name" cannot be empty');
         }
         if (!static::hasSpecifier($name)) {
             return false;
@@ -119,7 +149,7 @@ class Formatter implements IFormatter
     public static function getSpecifier(string $name): ISpecifier
     {
         if (!$name) {
-            throw new \InvalidArgumentException('Parameter "$name" cannot be empty');
+            throw new InvalidArgumentException('Argument "$name" cannot be empty');
         }
         if (!static::hasSpecifier($name)) {
             throw new SpecifierNotFoundException(
@@ -133,6 +163,55 @@ class Formatter implements IFormatter
         $instance = new $class();
 
         return $instance;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function addShortcut(string $name, string $specifier): bool
+    {
+        if (!$name) {
+            throw new InvalidArgumentException('Argument "$name" cannot be empty');
+        }
+        if (!$specifier) {
+            throw new InvalidArgumentException('Argument "$shortcut" cannot be empty');
+        }
+        if (static::hasShortcut($name)) {
+            return false;
+        }
+
+        static::$shortcuts[mb_strtolower($name)] = $specifier;
+
+        return true;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function hasShortcut(string $name): bool
+    {
+        if (!$name) {
+            throw new InvalidArgumentException('Argument "$name" cannot be empty');
+        }
+
+        return array_key_exists(mb_strtolower($name), static::$shortcuts);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function deleteShortcut(string $name): bool
+    {
+        if (!$name) {
+            throw new InvalidArgumentException('Argument "$name" cannot be empty');
+        }
+
+        if (!static::hasShortcut($name)) {
+            return false;
+        }
+        unset(static::$shortcuts[mb_strtolower($name)]);
+
+        return true;
     }
 
     /**

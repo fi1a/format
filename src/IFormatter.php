@@ -49,4 +49,19 @@ interface IFormatter
      * Возвращает функцию спецификатор с таким именем
      */
     public static function getSpecifier(string $name): ISpecifier;
+
+    /**
+     * Добавить сокращение
+     */
+    public static function addShortcut(string $name, string $specifier): bool;
+
+    /**
+     * Есть ли сокращение
+     */
+    public static function hasShortcut(string $name): bool;
+
+    /**
+     * Удалить сокращение
+     */
+    public static function deleteShortcut(string $name): bool;
 }

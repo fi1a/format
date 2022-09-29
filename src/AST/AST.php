@@ -154,7 +154,7 @@ class AST implements IAST
     private function variable(Counter $counter, Tokenizer $tokenizer, IToken $tokenVariable, array $values): void
     {
         $path = $tokenVariable->getImage();
-        if (!$path) {
+        if ($path === '') {
             $path = (string) $counter->get();
             $counter->increment();
         }
