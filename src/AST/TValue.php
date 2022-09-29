@@ -46,4 +46,39 @@ trait TValue
 
         return $values[$key];
     }
+
+    /**
+     * Разделение на ключи
+     *
+     * @return string[]
+     */
+    protected function explodePath(string $path): array
+    {
+        $current = -1;
+        $index = 0;
+        $paths = [];
+        do {
+            $current++;
+            $symbol = mb_substr($path, $current, 1);
+            $prevSymbol = mb_substr($path, $current - 1, 1);
+
+            if ($symbol === ':' && $prevSymbol !== '\\') {
+                $index++;
+
+                continue;
+            }
+            if (!isset($paths[$index])) {
+                $paths[$index] = '';
+            }
+            if ($symbol === ':' && $prevSymbol === '\\') {
+                $paths[$index] = mb_substr($paths[$index], 0, -1);
+            }
+            /**
+             * @psalm-suppress PossiblyUndefinedArrayOffset
+             */
+            $paths[$index] .= $symbol;
+        } while ($current < mb_strlen($path));
+
+        return $paths;
+    }
 }

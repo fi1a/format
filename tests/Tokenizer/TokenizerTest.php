@@ -22,14 +22,14 @@ class TokenizerTest extends TestCase
     public function dataTokenizer(): array
     {
         return [
-            // 1
+            // 0
             [
                 '{{}}',
                 3,
                 ['{{', '', '}}',],
                 [Token::T_OPEN_STATEMENT, Token::T_VARIABLE, Token::T_CLOSE_STATEMENT,],
             ],
-            // 2
+            // 1
             [
                 '{{}} {{}}',
                 7,
@@ -40,7 +40,7 @@ class TokenizerTest extends TestCase
                     Token::T_OPEN_STATEMENT, Token::T_VARIABLE, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 3
+            // 2
             [
                 '{{key1:key2}} {{key3:key4}}',
                 7,
@@ -51,7 +51,7 @@ class TokenizerTest extends TestCase
                     Token::T_OPEN_STATEMENT, Token::T_VARIABLE, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 4
+            // 3
             [
                 '{{  key1:key2  }} {{  key3:key4  }}',
                 11,
@@ -62,14 +62,14 @@ class TokenizerTest extends TestCase
                     Token::T_VARIABLE, Token::T_WHITESPACE, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 5
+            // 4
             [
                 '{{   }}',
                 4,
                 ['{{', '   ', '', '}}',],
                 [Token::T_OPEN_STATEMENT, Token::T_WHITESPACE, Token::T_VARIABLE, Token::T_CLOSE_STATEMENT,],
             ],
-            // 6
+            // 5
             [
                 '{{|sprintf}}',
                 5,
@@ -79,7 +79,7 @@ class TokenizerTest extends TestCase
                     Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 7
+            // 6
             [
                 '{{  key1:key2  |  sprintf  }}',
                 9,
@@ -90,7 +90,7 @@ class TokenizerTest extends TestCase
                     Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 8
+            // 7
             [
                 '{{|sprintf()}}',
                 7,
@@ -100,7 +100,7 @@ class TokenizerTest extends TestCase
                     Token::T_OPEN_PARENTHESES, Token::T_CLOSE_PARENTHESES, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 9
+            // 8
             [
                 '{{|sprintf("1, 2", key1:key2)}}',
                 13,
@@ -112,35 +112,35 @@ class TokenizerTest extends TestCase
                     Token::T_CLOSE_PARENTHESES, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 10
+            // 9
             [
                 '{{',
                 2,
                 ['{{', ''],
                 [Token::T_OPEN_STATEMENT, Token::T_VARIABLE],
             ],
-            // 11
+            // 10
             [
                 '{{key1:key2',
                 2,
                 ['{{', 'key1:key2'],
                 [Token::T_OPEN_STATEMENT, Token::T_VARIABLE],
             ],
-            // 12
+            // 11
             [
                 '{{key1:key2|',
                 3,
                 ['{{', 'key1:key2', '|'],
                 [Token::T_OPEN_STATEMENT, Token::T_VARIABLE, Token::T_SEPARATOR,],
             ],
-            // 13
+            // 12
             [
                 '{{key1:key2|sprintf',
                 4,
                 ['{{', 'key1:key2', '|', 'sprintf'],
                 [Token::T_OPEN_STATEMENT, Token::T_VARIABLE, Token::T_SEPARATOR, Token::T_SPECIFIER,],
             ],
-            // 14
+            // 13
             [
                 '{{key1:key2|sprintf(',
                 5,
@@ -150,7 +150,7 @@ class TokenizerTest extends TestCase
                     Token::T_OPEN_PARENTHESES,
                 ],
             ],
-            // 15
+            // 14
             [
                 '{{key1:key2|sprintf("',
                 6,
@@ -160,7 +160,7 @@ class TokenizerTest extends TestCase
                     Token::T_OPEN_PARENTHESES, Token::T_QUOTE,
                 ],
             ],
-            // 16
+            // 15
             [
                 '{{key1:key2|sprintf(" 123',
                 7,
@@ -170,7 +170,7 @@ class TokenizerTest extends TestCase
                     Token::T_OPEN_PARENTHESES, Token::T_QUOTE, Token::T_MODIFIER,
                 ],
             ],
-            // 17
+            // 16
             [
                 '{{key1:key2|sprintf(" 123"',
                 8,
@@ -180,7 +180,7 @@ class TokenizerTest extends TestCase
                     Token::T_OPEN_PARENTHESES, Token::T_QUOTE, Token::T_MODIFIER, Token::T_QUOTE,
                 ],
             ],
-            // 18
+            // 17
             [
                 '{{key1:key2|sprintf(" 123", ',
                 10,
@@ -191,7 +191,7 @@ class TokenizerTest extends TestCase
                     Token::T_COMMA_SEPARATOR, Token::T_WHITESPACE,
                 ],
             ],
-            // 19
+            // 18
             [
                 '{{key1:key2|sprintf}} {{key3:key4|sprintf(key1:key2)}}',
                 14,
@@ -207,7 +207,7 @@ class TokenizerTest extends TestCase
                     Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 20
+            // 19
             [
                 '{{ if( key1:key2 ) }}text{{endif}}',
                 14,
@@ -221,7 +221,7 @@ class TokenizerTest extends TestCase
                     Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 21
+            // 20
             [
                 '{{ if( key1:key2 && "key1:key2" ) }}text{{endif}}',
                 20,
@@ -238,7 +238,7 @@ class TokenizerTest extends TestCase
                     Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 22
+            // 21
             [
                 '{{ if( key1:key2 || "key1:key2" ) }}text{{endif}}',
                 20,
@@ -255,7 +255,7 @@ class TokenizerTest extends TestCase
                     Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 23
+            // 22
             [
                 '{{ if( key1:key2 or "key1:key2" ) }}text{{endif}}',
                 20,
@@ -272,7 +272,7 @@ class TokenizerTest extends TestCase
                     Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 24
+            // 23
             [
                 '{{if(key1:key2orkey1:key3 || \' key1:key4 \')}}text{{endif}}',
                 16,
@@ -287,7 +287,7 @@ class TokenizerTest extends TestCase
                     Token::T_TEXT, Token::T_OPEN_STATEMENT, Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 25
+            // 24
             [
                 '{{if(key1:key2 && key1:key3 || \' key1:key4 \')}}text{{endif}}',
                 20,
@@ -303,7 +303,7 @@ class TokenizerTest extends TestCase
                     Token::T_TEXT, Token::T_OPEN_STATEMENT, Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 26
+            // 25
             [
                 '{{if(key1:key2 and key1:key3 || \' key1:key4 \')}}text{{endif}}',
                 20,
@@ -319,7 +319,7 @@ class TokenizerTest extends TestCase
                     Token::T_TEXT, Token::T_OPEN_STATEMENT, Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 27
+            // 26
             [
                 '{{if(key1:key2andkey1:key3 || \' key1:key4 \')}}text{{endif}}',
                 16,
@@ -334,7 +334,7 @@ class TokenizerTest extends TestCase
                     Token::T_TEXT, Token::T_OPEN_STATEMENT, Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 28
+            // 27
             [
                 '{{if("1" === "2")}}text{{endif}}',
                 18,
@@ -350,7 +350,7 @@ class TokenizerTest extends TestCase
                     Token::T_OPEN_STATEMENT, Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 29
+            // 28
             [
                 '{{if("1" == "2")}}text{{endif}}',
                 18,
@@ -366,7 +366,7 @@ class TokenizerTest extends TestCase
                     Token::T_OPEN_STATEMENT, Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 30
+            // 29
             [
                 '{{if("1" !== "2")}}text{{endif}}',
                 18,
@@ -382,7 +382,7 @@ class TokenizerTest extends TestCase
                     Token::T_OPEN_STATEMENT, Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 31
+            // 30
             [
                 '{{if("1" != "2")}}text{{endif}}',
                 18,
@@ -398,7 +398,7 @@ class TokenizerTest extends TestCase
                     Token::T_OPEN_STATEMENT, Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 32
+            // 31
             [
                 '{{if("1" > "2")}}text{{endif}}',
                 18,
@@ -414,7 +414,7 @@ class TokenizerTest extends TestCase
                     Token::T_OPEN_STATEMENT, Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 33
+            // 32
             [
                 '{{if("1" >= "2")}}text{{endif}}',
                 18,
@@ -430,7 +430,7 @@ class TokenizerTest extends TestCase
                     Token::T_OPEN_STATEMENT, Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 34
+            // 33
             [
                 '{{if("1" < "2")}}text{{endif}}',
                 18,
@@ -446,7 +446,7 @@ class TokenizerTest extends TestCase
                     Token::T_OPEN_STATEMENT, Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 35
+            // 34
             [
                 '{{if("1" <= "2")}}text{{endif}}',
                 18,
@@ -462,7 +462,7 @@ class TokenizerTest extends TestCase
                     Token::T_OPEN_STATEMENT, Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 36
+            // 35
             [
                 '{{if(!false)}}text{{endif}}',
                 11,
@@ -475,7 +475,7 @@ class TokenizerTest extends TestCase
                     Token::T_OPEN_STATEMENT, Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 37
+            // 36
             [
                 '{{if(true&&false)}}text{{endif}}',
                 12,
@@ -488,7 +488,7 @@ class TokenizerTest extends TestCase
                     Token::T_OPEN_STATEMENT, Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 38
+            // 37
             [
                 '{{if(null||false)}}text{{endif}}',
                 12,
@@ -501,7 +501,7 @@ class TokenizerTest extends TestCase
                     Token::T_OPEN_STATEMENT, Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 39
+            // 38
             [
                 '{{if(2 + 2)}}text{{endif}}',
                 14,
@@ -515,7 +515,7 @@ class TokenizerTest extends TestCase
                     Token::T_OPEN_STATEMENT, Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 40
+            // 39
             [
                 '{{if(2 - 2)}}text{{endif}}',
                 14,
@@ -529,7 +529,7 @@ class TokenizerTest extends TestCase
                     Token::T_OPEN_STATEMENT, Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 41
+            // 40
             [
                 '{{if(2 / 2)}}text{{endif}}',
                 14,
@@ -543,7 +543,7 @@ class TokenizerTest extends TestCase
                     Token::T_OPEN_STATEMENT, Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 42
+            // 41
             [
                 '{{if(2 % 2)}}text{{endif}}',
                 14,
@@ -557,7 +557,7 @@ class TokenizerTest extends TestCase
                     Token::T_OPEN_STATEMENT, Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 43
+            // 42
             [
                 '{{if("2" . "2")}}text{{endif}}',
                 18,
@@ -573,7 +573,7 @@ class TokenizerTest extends TestCase
                     Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 44
+            // 43
             [
                 '{{if(2 * 2)}}text{{endif}}',
                 14,
@@ -587,7 +587,7 @@ class TokenizerTest extends TestCase
                     Token::T_OPEN_STATEMENT, Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 45
+            // 44
             [
                 '{{if((1 + 2) == 3)}}text{{endif}}',
                 20,
@@ -604,7 +604,7 @@ class TokenizerTest extends TestCase
                     Token::T_OPEN_STATEMENT, Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 46
+            // 45
             [
                 '{{if(true)}}text1{{elseif(false)}}text2{{else}}text3{{endif}}',
                 21,
@@ -621,7 +621,7 @@ class TokenizerTest extends TestCase
                     Token::T_OPEN_STATEMENT, Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 47
+            // 46
             [
                 '{{if(true',
                 4,
@@ -632,7 +632,7 @@ class TokenizerTest extends TestCase
                     Token::T_OPEN_STATEMENT, Token::T_IF, Token::T_OPEN_PARENTHESES, Token::T_TRUE,
                 ],
             ],
-            // 48
+            // 47
             [
                 '{{if(true)',
                 5,
@@ -644,7 +644,7 @@ class TokenizerTest extends TestCase
                     Token::T_CLOSE_PARENTHESES,
                 ],
             ],
-            // 49
+            // 48
             [
                 '{{if(true)}',
                 6,
@@ -656,7 +656,7 @@ class TokenizerTest extends TestCase
                     Token::T_CLOSE_PARENTHESES, Token::T_TEXT,
                 ],
             ],
-            // 50
+            // 49
             [
                 '{{if(true)}}text{',
                 7,
@@ -668,7 +668,7 @@ class TokenizerTest extends TestCase
                     Token::T_CLOSE_PARENTHESES, Token::T_CLOSE_STATEMENT, Token::T_TEXT,
                 ],
             ],
-            // 51
+            // 50
             [
                 '{{if(true)}}text{{',
                 9,
@@ -681,7 +681,7 @@ class TokenizerTest extends TestCase
                     Token::T_VARIABLE,
                 ],
             ],
-            // 52
+            // 51
             [
                 '{{if(true)}}text{{else',
                 9,
@@ -694,7 +694,7 @@ class TokenizerTest extends TestCase
                     Token::T_ELSE,
                 ],
             ],
-            // 53
+            // 52
             [
                 '{{if(true)}}text{{else}}',
                 10,
@@ -707,7 +707,7 @@ class TokenizerTest extends TestCase
                     Token::T_ELSE, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 54
+            // 53
             [
                 '{{if(true)}}text{{else}}text',
                 11,
@@ -720,7 +720,7 @@ class TokenizerTest extends TestCase
                     Token::T_ELSE, Token::T_CLOSE_STATEMENT, Token::T_TEXT,
                 ],
             ],
-            // 55
+            // 54
             [
                 '{{IF(TRUE)}}text{{ELSE}}text{{ENDIF',
                 13,
@@ -734,7 +734,7 @@ class TokenizerTest extends TestCase
                     Token::T_ENDIF,
                 ],
             ],
-            // 56
+            // 55
             [
                 '"text{{key1:key2}}text"',
                 5,
@@ -745,7 +745,7 @@ class TokenizerTest extends TestCase
                     Token::T_TEXT, Token::T_OPEN_STATEMENT, Token::T_VARIABLE, Token::T_CLOSE_STATEMENT, Token::T_TEXT,
                 ],
             ],
-            // 57
+            // 56
             [
                 '"text\{\{key1:key2\}\}text"',
                 1,
@@ -756,7 +756,7 @@ class TokenizerTest extends TestCase
                     Token::T_TEXT,
                 ],
             ],
-            // 58
+            // 57
             [
                 '"text{\{key1:key2}\}text"',
                 1,
@@ -767,7 +767,7 @@ class TokenizerTest extends TestCase
                     Token::T_TEXT,
                 ],
             ],
-            // 59
+            // 58
             [
                 "{{array:key2|sprintf('d')}}, {{\n array:key1 \t |sprintf('1.1f')}}",
                 23,
@@ -784,7 +784,7 @@ class TokenizerTest extends TestCase
                     Token::T_MODIFIER, Token::T_QUOTE, Token::T_CLOSE_PARENTHESES, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 60
+            // 59
             [
                 "{{0|sprintf('\'.9d')}}",
                 10,
@@ -797,7 +797,7 @@ class TokenizerTest extends TestCase
                     Token::T_CLOSE_PARENTHESES, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 61
+            // 60
             [
                 '{{|sprintf(true, false, null, key1:key2)}}',
                 17,
@@ -811,6 +811,19 @@ class TokenizerTest extends TestCase
                     Token::T_FALSE, Token::T_COMMA_SEPARATOR, Token::T_WHITESPACE, Token::T_NULL,
                     Token::T_COMMA_SEPARATOR, Token::T_WHITESPACE, Token::T_MODIFIER, Token::T_CLOSE_PARENTHESES,
                     Token::T_CLOSE_STATEMENT,
+                ],
+            ],
+            // 61
+            [
+                '{{if(key1:key2&&key1:key2)}}{{endif}}',
+                11,
+                [
+                    '{{', 'if', '(', 'key1:key2', '&&', 'key1:key2', ')', '}}', '{{', 'endif', '}}',
+                ],
+                [
+                    Token::T_OPEN_STATEMENT, Token::T_IF, Token::T_OPEN_PARENTHESES, Token::T_CONDITION_PART,
+                    Token::T_AND, Token::T_CONDITION_PART, Token::T_CLOSE_PARENTHESES,
+                    Token::T_CLOSE_STATEMENT, Token::T_OPEN_STATEMENT, Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
                 ],
             ],
             // 62
@@ -828,19 +841,6 @@ class TokenizerTest extends TestCase
             ],
             // 63
             [
-                '{{if(key1:key2&&key1:key2)}}{{endif}}',
-                11,
-                [
-                    '{{', 'if', '(', 'key1:key2', '&&', 'key1:key2', ')', '}}', '{{', 'endif', '}}',
-                ],
-                [
-                    Token::T_OPEN_STATEMENT, Token::T_IF, Token::T_OPEN_PARENTHESES, Token::T_CONDITION_PART,
-                    Token::T_AND, Token::T_CONDITION_PART, Token::T_CLOSE_PARENTHESES,
-                    Token::T_CLOSE_STATEMENT, Token::T_OPEN_STATEMENT, Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
-                ],
-            ],
-            // 64
-            [
                 '{{key1}',
                 3,
                 [
@@ -850,7 +850,7 @@ class TokenizerTest extends TestCase
                     Token::T_OPEN_STATEMENT, Token::T_VARIABLE, Token::T_TEXT,
                 ],
             ],
-            // 65
+            // 64
             [
                 '{{|sprintf(key1 , key2)}}',
                 12,
@@ -863,7 +863,7 @@ class TokenizerTest extends TestCase
                     Token::T_WHITESPACE, Token::T_MODIFIER, Token::T_CLOSE_PARENTHESES, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 66
+            // 65
             [
                 '{{|sprintf(key1,key2)}}',
                 10,
@@ -876,7 +876,7 @@ class TokenizerTest extends TestCase
                     Token::T_MODIFIER, Token::T_CLOSE_PARENTHESES, Token::T_CLOSE_STATEMENT,
                 ],
             ],
-            // 67
+            // 66
             [
                 '{{0|sprintf("\'.09d")}}',
                 10,

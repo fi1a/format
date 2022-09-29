@@ -49,7 +49,7 @@ class Variable implements IVariable
      */
     public function getValue()
     {
-        return $this->getValueInternal($this->values, explode(':', $this->getKey()));
+        return $this->getValueInternal($this->values, $this->explodePath($this->getKey()));
     }
 
     /**

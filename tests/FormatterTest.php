@@ -532,6 +532,15 @@ class FormatterTest extends TestCase
                 ],
                 'foo',
             ],
+            [
+                'test {{key\:1:key2}}',
+                [
+                    'key:1' => [
+                        'key2' => 'foo',
+                    ],
+                ],
+                'test foo',
+            ],
         ];
     }
 

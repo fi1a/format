@@ -45,7 +45,7 @@ class Modifier implements IModifier
     {
         if ($this->isVariable) {
             try {
-                return $this->getValueInternal($this->values, explode(':', (string) $this->value));
+                return $this->getValueInternal($this->values, $this->explodePath((string) $this->value));
             } catch (NotFoundKey $exception) {
                 if (is_numeric($this->value)) {
                     return $this->value;
