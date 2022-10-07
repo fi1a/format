@@ -744,6 +744,13 @@ class FormatterTest extends TestCase
                     'key1' => 1,
                 ],
             ],
+
+            [
+                '{{key1|specifier("100" ',
+                [
+                    'key1' => 1,
+                ],
+            ],
         ];
     }
 

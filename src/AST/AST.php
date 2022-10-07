@@ -232,7 +232,7 @@ class AST implements IAST
                     }
                 }
                 /** @psalm-suppress PossiblyInvalidMethodCall */
-                if ($token->getType() === Token::T_CLOSE_PARENTHESES) {
+                if ($token->getType() === Token::T_CLOSE_PARENTHESES && !count($modifiers)) {
                     break;
                 }
                 /** @psalm-suppress PossiblyInvalidMethodCall */
@@ -305,6 +305,15 @@ class AST implements IAST
                 /** @psalm-suppress PossiblyInvalidMethodCall */
                 if ($token->getType() === Token::T_WHITESPACE) {
                     $token = $tokenizer->next();
+                    if ($token === ITokenizer::T_EOF) {
+                        throw new FormatErrorException(
+                            sprintf(
+                                'Specifier not set (%d:%d)',
+                                $tokenSeparator->getEndLine(),
+                                $tokenSeparator->getEndColumn()
+                            )
+                        );
+                    }
                 }
 
                 /** @psalm-suppress PossiblyInvalidMethodCall */
