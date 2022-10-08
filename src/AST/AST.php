@@ -255,7 +255,7 @@ class AST implements IAST
                 if (
                     !in_array(
                         $token->getType(),
-                        [Token::T_MODIFIER, Token::T_TRUE, Token::T_FALSE, Token::T_NULL]
+                        [Token::T_MODIFIER, Token::T_TRUE, Token::T_FALSE, Token::T_NULL, Token::T_QUOTE,]
                     )
                     && $token->getType() !== Token::T_CLOSE_PARENTHESES
                 ) {
@@ -270,11 +270,18 @@ class AST implements IAST
                 $isVariable = true;
                 /** @psalm-suppress PossiblyInvalidMethodCall */
                 $value = $token->getImage();
+                /** @psalm-suppress PossiblyInvalidMethodCall */
+                if ($token->getType() === Token::T_QUOTE) {
+                    $value = '';
+                }
                 /** @psalm-suppress PossiblyInvalidArgument */
                 $this->castValue($token, $value, $isVariable, $isQuote, $isSingle);
                 $modifiers[] = new Modifier($value, $values, $isVariable);
 
-                $token = $tokenizer->next();
+                /** @psalm-suppress PossiblyInvalidMethodCall */
+                if ($token->getType() !== Token::T_QUOTE) {
+                    $token = $tokenizer->next();
+                }
                 /** @psalm-suppress PossiblyInvalidMethodCall */
                 if (
                     $token === ITokenizer::T_EOF

@@ -541,6 +541,20 @@ class FormatterTest extends TestCase
                 ],
                 'test foo',
             ],
+            [
+                '{{foo|spf("")}}',
+                [
+                    'foo' => 'foo',
+                ],
+                'foo',
+            ],
+            [
+                '{{foo|spf(\'\')}}',
+                [
+                    'foo' => 'foo',
+                ],
+                'foo',
+            ],
         ];
     }
 
