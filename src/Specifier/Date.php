@@ -52,7 +52,7 @@ class Date implements ISpecifier
     public function format($value, ...$modifiers): string
     {
         if (count($modifiers) > 2) {
-            throw new InvalidArgumentException('More than one modifier passed');
+            throw new InvalidArgumentException('More than two modifier passed');
         }
 
         /**

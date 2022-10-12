@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Fi1a\Format\Formatter;
 use Fi1a\Format\Specifier\Date as DateSpecifier;
 use Fi1a\Format\Specifier\Escape;
+use Fi1a\Format\Specifier\Memory;
 use Fi1a\Format\Specifier\Sprintf;
 use Fi1a\Format\Specifier\UnEscape;
 
@@ -12,6 +13,7 @@ Formatter::addSpecifier('sprintf', Sprintf::class);
 Formatter::addSpecifier('date', DateSpecifier::class);
 Formatter::addSpecifier('escape', Escape::class);
 Formatter::addSpecifier('unescape', UnEscape::class);
+Formatter::addSpecifier('memory', Memory::class);
 
 DateSpecifier::setDayOfWeek3('ru', [
     'Mon' => 'Пн',
@@ -76,4 +78,13 @@ DateSpecifier::setMonthName3('ru', [
     'Oct' => 'Окт',
     'Nov' => 'Ноя',
     'Dec' => 'Дек',
+]);
+
+Memory::setDimensions([
+    'B' => 'Б',
+    'KB' => 'КБ',
+    'MB' => 'МБ',
+    'GB' => 'ГБ',
+    'TB' => 'ТБ',
+    'PB' => 'ПБ',
 ]);
