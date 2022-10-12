@@ -303,7 +303,7 @@ class Tokenizer extends AParseFunction
             if (($symbol === '"' || $symbol === '\'') && $prevSymbol !== '\\') {
                 $this->quoteReturn = 'parseConditions';
                 $this->setParseFunction('parseQuote');
-                if ($image) {
+                if ($image !== '') {
                     $type = Token::T_CONDITION_PART;
                 }
 
@@ -325,7 +325,7 @@ class Tokenizer extends AParseFunction
                     )
                 ) {
                     $this->setParseFunction('parseOperator');
-                    if ($image) {
+                    if ($image !== '') {
                         $type = Token::T_CONDITION_PART;
                     }
 
@@ -343,7 +343,7 @@ class Tokenizer extends AParseFunction
             if ($symbol === ')' && !$quote && !$single && $this->openParenthesesCount > 1) {
                 $this->openParenthesesCount--;
                 $this->setParseFunction('parseCloseParenthesesCondition');
-                if ($image) {
+                if ($image !== '') {
                     $type = Token::T_CONDITION_PART;
                 }
 
@@ -519,7 +519,7 @@ class Tokenizer extends AParseFunction
             if (preg_match('/[\s\t\n]/mui', $symbol) && !$quote && !$single) {
                 $this->whiteSpaceReturn = 'parseSpecifierModifiers';
                 $this->setParseFunction('parseWhitespace');
-                if ($image) {
+                if ($image !== '') {
                     $type = Token::T_MODIFIER;
                 }
 
@@ -528,7 +528,7 @@ class Tokenizer extends AParseFunction
             if ($symbol === ',' && !$quote && !$single) {
                 $this->commaSeparatorReturn = 'parseSpecifierModifiers';
                 $this->setParseFunction('parseCommaSeparator');
-                if ($image || $image === '0') {
+                if ($image !== '') {
                     $type = Token::T_MODIFIER;
                 }
 
@@ -538,7 +538,7 @@ class Tokenizer extends AParseFunction
             if ((($symbol === '"' && !$single) || ($symbol === '\'' && !$quote)) && $prevSymbol !== '\\') {
                 $this->quoteReturn = 'parseSpecifierModifiers';
                 $this->setParseFunction('parseQuote');
-                if ($image) {
+                if ($image !== '') {
                     $type = Token::T_MODIFIER;
                 }
 

@@ -94,7 +94,7 @@ class AST implements IAST
             }
             /** @psalm-suppress PossiblyInvalidMethodCall */
             if (
-                ($token->getType() === Token::T_IF && $conditions->isSatisfies())
+                ($token->getType() === Token::T_IF)
                 || ($token->getType() === Token::T_ELSEIF && !$conditions->isSatisfies())
             ) {
                 /** @psalm-suppress PossiblyInvalidArgument */
@@ -118,6 +118,7 @@ class AST implements IAST
             /** @psalm-suppress PossiblyInvalidMethodCall */
             if ($token->getType() === Token::T_ENDIF) {
                 $conditions->delete($conditions->count() - 1);
+                $conditions->resetKeys();
                 $openConditions->decrement();
 
                 continue;
@@ -435,7 +436,7 @@ class AST implements IAST
             );
         }
         $ifCondition = trim($ifCondition);
-        if (!$ifCondition) {
+        if ($ifCondition === '') {
             throw new FormatErrorException(
                 sprintf(
                     'Empty condition (%d:%d)',
