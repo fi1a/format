@@ -727,6 +727,14 @@ class FormatterTest extends TestCase
                 ],
                 '12356',
             ],
+            // 76
+            [
+                '{{if(not_exists && key1)}}1{{else}}2{{endif}}',
+                [
+                    'key1' => 1,
+                ],
+                '2',
+            ],
         ];
     }
 
