@@ -118,13 +118,15 @@ class Tokenizer extends AParseFunction
 
             $symbol = mb_substr($source, $current, 1);
             $secondSymbol = mb_substr($source, $current + 1, 1);
+            $prevSymbol = mb_substr($source, $current - 1, 1);
+            $prevPrevSymbol = mb_substr($source, $current - 2, 1);
 
-            if ($symbol === '{' && $secondSymbol === '{') {
+            if ($symbol === '{' && $secondSymbol === '{' && ($prevSymbol !== '\\' || $prevPrevSymbol === '\\')) {
                 $this->setParseFunction('parseOpenStatement');
 
                 return;
             }
-            if ($symbol === '}' && $secondSymbol === '}') {
+            if ($symbol === '}' && $secondSymbol === '}' && ($prevSymbol !== '\\' || $prevPrevSymbol === '\\')) {
                 $this->setParseFunction('parseCloseStatement');
 
                 return;

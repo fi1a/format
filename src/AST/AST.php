@@ -125,7 +125,12 @@ class AST implements IAST
             }
             /** @psalm-suppress PossiblyInvalidMethodCall */
             if ($token->getType() === Token::T_TEXT && $conditions->isSatisfies()) {
-                $this->nodes[] = new Text($token->getImage());
+                $image = str_replace(
+                    ['\\\\', '\\{{', '\\}}'],
+                    ['\\', '{{', '}}',],
+                    $token->getImage()
+                );
+                $this->nodes[] = new Text($image);
             }
         }
         if ($statements > 0) {

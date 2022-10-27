@@ -902,6 +902,30 @@ class TokenizerTest extends TestCase
                     Token::T_CLOSE_PARENTHESES, Token::T_CLOSE_STATEMENT,
                 ],
             ],
+            // 68
+            [
+                '\\{{0|sprintf("0")\\}}',
+                1,
+                [
+                    '\\{{0|sprintf("0")\\}}',
+                ],
+                [
+                    Token::T_TEXT,
+                ],
+            ],
+            // 69
+            [
+                '\\\\{{0|sprintf("0")}}',
+                11,
+                [
+                    '\\\\', '{{', '0', '|', 'sprintf', '(', '"', '0', '"', ')', '}}',
+                ],
+                [
+                    Token::T_TEXT, Token::T_OPEN_STATEMENT, Token::T_VARIABLE, Token::T_SEPARATOR, Token::T_SPECIFIER,
+                    Token::T_OPEN_PARENTHESES, Token::T_QUOTE, Token::T_MODIFIER, Token::T_QUOTE,
+                    Token::T_CLOSE_PARENTHESES, Token::T_CLOSE_STATEMENT,
+                ],
+            ],
         ];
     }
 

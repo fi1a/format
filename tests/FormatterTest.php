@@ -1099,4 +1099,12 @@ class FormatterTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         Formatter::deleteShortcut('');
     }
+
+    /**
+     * Экранирует все спец. символы
+     */
+    public function testAddSlashes(): void
+    {
+        $this->assertEquals('\\{{|sprintf\\}} \\\\', Formatter::addSlashes('{{|sprintf}} \\'));
+    }
 }
