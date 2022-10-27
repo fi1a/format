@@ -152,7 +152,7 @@ class MemoryTest extends TestCase
     }
 
     /**
-     * Исключение при отсутвии ключей
+     * Единицы измерения
      */
     public function testSetDimension(): void
     {
