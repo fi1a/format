@@ -76,12 +76,23 @@ Formatter::format('{{0}}', [0 => 'foo']); // foo
 ```
 
 Для экранирования всех спец. символов в строке,
-можно воспользоваться функцией ```addSlashes``` класса ```Fi1a\Format\Formatter```:
+можно воспользоваться функцией ```escape``` класса ```Fi1a\Format\Safe```:
 
 ```php
 use Fi1a\Format\Formatter;
+use Fi1a\Format\Safe;
 
-Formatter::format(Formatter::addSlashes('{{0}}'), [0 => 'foo']); // {{0}}
+Formatter::format(Safe::escape(('{{0}}'), [0 => 'foo']); // {{0}}
+```
+
+Для того чтобы убрать экранирование спец. символов в строке,
+можно воспользоваться функцией ```unescape``` класса ```Fi1a\Format\Safe```:
+
+```php
+use Fi1a\Format\Formatter;
+use Fi1a\Format\Safe;
+
+Formatter::format(Safe::unescape(('\\{{0}}'), [0 => 'foo']); // foo
 ```
 
 ### Использование функций спецификаторов
