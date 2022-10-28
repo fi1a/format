@@ -64,9 +64,4 @@ interface IFormatter
      * Удалить сокращение
      */
     public static function deleteShortcut(string $name): bool;
-
-    /**
-     * Экранирует все спец. символы
-     */
-    public static function addSlashes(string $message): string;
 }

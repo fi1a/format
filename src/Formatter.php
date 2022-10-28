@@ -239,12 +239,4 @@ class Formatter implements IFormatter
 
         return (string) $value;
     }
-
-    /**
-     * @inheritDoc
-     */
-    public static function addSlashes(string $message): string
-    {
-        return str_replace(['\\', '{{', '}}'], ['\\\\', '\{{', '\}}'], $message);
-    }
 }

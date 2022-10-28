@@ -6,6 +6,7 @@ namespace Fi1a\Format\AST;
 
 use Fi1a\Format\AST\Exception\FormatErrorException;
 use Fi1a\Format\AST\Exception\NotFoundKey;
+use Fi1a\Format\Safe;
 use Fi1a\Format\Tokenizer\Token;
 use Fi1a\Format\Tokenizer\Tokenizer;
 use Fi1a\Tokenizer\IToken;
@@ -125,11 +126,7 @@ class AST implements IAST
             }
             /** @psalm-suppress PossiblyInvalidMethodCall */
             if ($token->getType() === Token::T_TEXT && $conditions->isSatisfies()) {
-                $image = str_replace(
-                    ['\\\\', '\\{{', '\\}}'],
-                    ['\\', '{{', '}}',],
-                    $token->getImage()
-                );
+                $image = Safe::unescape($token->getImage());
                 $this->nodes[] = new Text($image);
             }
         }
