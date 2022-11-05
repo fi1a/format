@@ -1,7 +1,7 @@
 {
   "name": "fi1a/format",
   "type": "library",
-  "description": "Форматирование и подстановка значений в строке",
+  "description": "PHP форматирование строковых шаблонов",
   "keywords": [],
   "homepage": "https://github.com/fi1a/format",
   "license": "MIT",
