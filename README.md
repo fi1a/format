@@ -274,7 +274,7 @@ use Fi1a\Format\Formatter;
 Formatter::format('{{|unescape}}', ['&amp;quot;test&amp;quot;']); // "test"
 ```
 
-## Форматирование размера памяти
+## PHP форматирование размера памяти
 
 Функция спецификатор memory. Форматирование размера памяти.
 
