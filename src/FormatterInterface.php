@@ -9,7 +9,7 @@ use Fi1a\Format\Specifier\SpecifierInterface;
 /**
  * Интерфейс класса форматирования строковых шаблонов
  */
-interface IFormatter
+interface FormatterInterface
 {
     /**
      * Форматирование строковых шаблонов

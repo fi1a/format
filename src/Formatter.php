@@ -17,7 +17,7 @@ use const PREG_OFFSET_CAPTURE;
 /**
  * Форматирование строковых шаблонов
  */
-class Formatter implements IFormatter
+class Formatter implements FormatterInterface
 {
     /**
      * @var string[]
