@@ -15,7 +15,7 @@ class Specifier implements ISpecifier
     private $name;
 
     /**
-     * @var IModifier[]
+     * @var ModifierInterface[]
      */
     private $modifiers = [];
 

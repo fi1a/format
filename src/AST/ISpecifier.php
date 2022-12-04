@@ -12,7 +12,7 @@ interface ISpecifier extends INode
     /**
      * Конструктор
      *
-     * @param IModifier[]  $modifiers
+     * @param ModifierInterface[] $modifiers
      */
     public function __construct(string $name, array $modifiers);
 
@@ -24,7 +24,7 @@ interface ISpecifier extends INode
     /**
      * Возвращает модификаторы
      *
-     * @return IModifier[]
+     * @return ModifierInterface[]
      */
     public function getModifiers(): array;
 }
