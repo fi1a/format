@@ -17,7 +17,7 @@ use Fi1a\Tokenizer\PHP\TokenizerFactory;
 /**
  * AST
  */
-class AST implements IAST
+class AST implements ASTInterface
 {
     /**
      * @var INodes

@@ -7,7 +7,7 @@ namespace Fi1a\Format\AST;
 /**
  * Интерфейс AST
  */
-interface IAST
+interface ASTInterface
 {
     /**
      * Конструктор
