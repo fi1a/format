@@ -7,7 +7,7 @@ namespace Fi1a\Format\AST;
 /**
  * Модификатор спецификатора
  */
-interface IModifier extends INode
+interface ModifierInterface extends NodeInterface
 {
     /**
      * Конструктор

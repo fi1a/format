@@ -17,10 +17,10 @@ use Fi1a\Tokenizer\PHP\TokenizerFactory;
 /**
  * AST
  */
-class AST implements IAST
+class AST implements ASTInterface
 {
     /**
-     * @var INodes
+     * @var NodesInterface
      */
     protected $nodes;
 
@@ -144,7 +144,7 @@ class AST implements IAST
     /**
      * @inheritDoc
      */
-    public function getNodes(): INodes
+    public function getNodes(): NodesInterface
     {
         return $this->nodes;
     }
@@ -178,7 +178,7 @@ class AST implements IAST
      *
      * @param mixed[] $values
      */
-    private function specifier(Tokenizer $tokenizer, IToken $tokenSeparator, array $values): ISpecifier
+    private function specifier(Tokenizer $tokenizer, IToken $tokenSeparator, array $values): SpecifierInterface
     {
         $tokenSpecifier = $tokenizer->next();
         if ($tokenSpecifier === ITokenizer::T_EOF) {

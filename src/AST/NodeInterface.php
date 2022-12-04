@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Fi1a\Format\AST;
 
 /**
- * Часть условия
+ * Узел AST
  */
-interface IConditionPart extends IModifier
+interface NodeInterface
 {
 }

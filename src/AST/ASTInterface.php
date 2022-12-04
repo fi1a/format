@@ -7,7 +7,7 @@ namespace Fi1a\Format\AST;
 /**
  * Интерфейс AST
  */
-interface IAST
+interface ASTInterface
 {
     /**
      * Конструктор
@@ -19,5 +19,5 @@ interface IAST
     /**
      * Возвращает список узлов
      */
-    public function getNodes(): INodes;
+    public function getNodes(): NodesInterface;
 }

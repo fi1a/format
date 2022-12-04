@@ -11,7 +11,7 @@ use Fi1a\Format\AST\Exception\NotFoundKey;
 /**
  * Методы работы со значением
  */
-trait TValue
+trait ValueTrait
 {
     /**
      * Возвращает значение для замены

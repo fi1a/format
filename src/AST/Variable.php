@@ -7,9 +7,9 @@ namespace Fi1a\Format\AST;
 /**
  * Переменная
  */
-class Variable implements IVariable
+class Variable implements VariableInterface
 {
-    use TValue;
+    use ValueTrait;
 
     /**
      * @var string
@@ -22,14 +22,14 @@ class Variable implements IVariable
     private $values;
 
     /**
-     * @var ISpecifier|null
+     * @var SpecifierInterface|null
      */
     private $specifier;
 
     /**
      * @inheritDoc
      */
-    public function __construct(string $key, array $values = [], ?ISpecifier $specifier = null)
+    public function __construct(string $key, array $values = [], ?SpecifierInterface $specifier = null)
     {
         $this->key = $key;
         $this->values = $values;
@@ -55,7 +55,7 @@ class Variable implements IVariable
     /**
      * @inheritDoc
      */
-    public function getSpecifier(): ?ISpecifier
+    public function getSpecifier(): ?SpecifierInterface
     {
         return $this->specifier;
     }

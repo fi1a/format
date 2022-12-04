@@ -7,7 +7,7 @@ namespace Fi1a\Format\Specifier;
 /**
  * Спецификатор функции sprintf
  */
-class Sprintf implements ISpecifier
+class Sprintf implements SpecifierInterface
 {
     /**
      * @inheritDoc

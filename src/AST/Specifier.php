@@ -7,7 +7,7 @@ namespace Fi1a\Format\AST;
 /**
  * Спецификатор
  */
-class Specifier implements ISpecifier
+class Specifier implements SpecifierInterface
 {
     /**
      * @var string
@@ -15,7 +15,7 @@ class Specifier implements ISpecifier
     private $name;
 
     /**
-     * @var IModifier[]
+     * @var ModifierInterface[]
      */
     private $modifiers = [];
 

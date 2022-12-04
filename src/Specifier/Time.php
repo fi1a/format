@@ -9,7 +9,7 @@ use InvalidArgumentException;
 /**
  * Форматирование времени
  */
-class Time implements ISpecifier
+class Time implements SpecifierInterface
 {
     /**
      * @var string[][]|int[][]

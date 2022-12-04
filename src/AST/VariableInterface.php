@@ -7,14 +7,14 @@ namespace Fi1a\Format\AST;
 /**
  * Переменная
  */
-interface IVariable extends INode
+interface VariableInterface extends NodeInterface
 {
     /**
      * Конструктор
      *
      * @param mixed[]         $values
      */
-    public function __construct(string $path, array $values = [], ?ISpecifier $specifier = null);
+    public function __construct(string $path, array $values = [], ?SpecifierInterface $specifier = null);
 
     /**
      * Возвращает значение
@@ -31,5 +31,5 @@ interface IVariable extends INode
     /**
      * Возвращает спецификатор
      */
-    public function getSpecifier(): ?ISpecifier;
+    public function getSpecifier(): ?SpecifierInterface;
 }

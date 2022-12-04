@@ -9,9 +9,9 @@ use Fi1a\Format\AST\Exception\NotFoundKey;
 /**
  * Модификатор спецификатора
  */
-class Modifier implements IModifier
+class Modifier implements ModifierInterface
 {
-    use TValue;
+    use ValueTrait;
 
     /**
      * @var mixed

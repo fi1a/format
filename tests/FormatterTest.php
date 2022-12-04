@@ -7,7 +7,7 @@ namespace Fi1a\Unit\Format;
 use Fi1a\Format\AST\Exception\FormatErrorException;
 use Fi1a\Format\Exception\SpecifierNotFoundException;
 use Fi1a\Format\Formatter;
-use Fi1a\Format\Specifier\ISpecifier;
+use Fi1a\Format\Specifier\SpecifierInterface;
 use Fi1a\Unit\Format\Fixtures\FormatClass;
 use Fi1a\Unit\Format\Fixtures\Specifier;
 use InvalidArgumentException;
@@ -979,7 +979,7 @@ class FormatterTest extends TestCase
         $this->assertFalse(Formatter::addSpecifier('spf_test', Specifier::class));
         $this->assertTrue(Formatter::hasSpecifier('spf_test'));
         $this->assertFalse(Formatter::hasSpecifier('unknown'));
-        $this->assertInstanceOf(ISpecifier::class, Formatter::getSpecifier('spf_test'));
+        $this->assertInstanceOf(SpecifierInterface::class, Formatter::getSpecifier('spf_test'));
         $this->assertFalse(Formatter::deleteSpecifier('unknown'));
         $this->assertTrue(Formatter::deleteSpecifier('spf_test'));
     }
