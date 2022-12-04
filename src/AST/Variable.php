@@ -9,7 +9,7 @@ namespace Fi1a\Format\AST;
  */
 class Variable implements VariableInterface
 {
-    use TValue;
+    use ValueTrait;
 
     /**
      * @var string

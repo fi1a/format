@@ -11,7 +11,7 @@ use Fi1a\Format\AST\Exception\NotFoundKey;
  */
 class Modifier implements ModifierInterface
 {
-    use TValue;
+    use ValueTrait;
 
     /**
      * @var mixed
