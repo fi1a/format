@@ -20,7 +20,7 @@ use Fi1a\Tokenizer\PHP\TokenizerFactory;
 class AST implements ASTInterface
 {
     /**
-     * @var INodes
+     * @var NodesInterface
      */
     protected $nodes;
 
@@ -144,7 +144,7 @@ class AST implements ASTInterface
     /**
      * @inheritDoc
      */
-    public function getNodes(): INodes
+    public function getNodes(): NodesInterface
     {
         return $this->nodes;
     }

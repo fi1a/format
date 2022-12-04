@@ -9,6 +9,6 @@ use Fi1a\Collection\DataType\ArrayObjectInterface;
 /**
  * Список
  */
-interface INodes extends ArrayObjectInterface
+interface NodesInterface extends ArrayObjectInterface
 {
 }

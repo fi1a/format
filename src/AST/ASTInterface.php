@@ -19,5 +19,5 @@ interface ASTInterface
     /**
      * Возвращает список узлов
      */
-    public function getNodes(): INodes;
+    public function getNodes(): NodesInterface;
 }
