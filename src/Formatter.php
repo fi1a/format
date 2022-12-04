@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Fi1a\Format;
 
 use Fi1a\Format\AST\AST;
-use Fi1a\Format\AST\IVariable;
 use Fi1a\Format\AST\NodeInterface;
 use Fi1a\Format\AST\TextInterface;
+use Fi1a\Format\AST\VariableInterface;
 use Fi1a\Format\Exception\SpecifierNotFoundException;
 use Fi1a\Format\Specifier\ISpecifier;
 use InvalidArgumentException;
@@ -63,7 +63,7 @@ class Formatter implements IFormatter
          * @var NodeInterface $node
          */
         foreach ($ast->getNodes() as $node) {
-            if ($node instanceof IVariable) {
+            if ($node instanceof VariableInterface) {
                 $value = static::convert($node->getValue());
                 $specifier = $node->getSpecifier();
                 if ($specifier) {

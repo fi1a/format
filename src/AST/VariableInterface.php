@@ -7,7 +7,7 @@ namespace Fi1a\Format\AST;
 /**
  * Переменная
  */
-interface IVariable extends NodeInterface
+interface VariableInterface extends NodeInterface
 {
     /**
      * Конструктор

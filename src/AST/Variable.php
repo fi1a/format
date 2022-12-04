@@ -7,7 +7,7 @@ namespace Fi1a\Format\AST;
 /**
  * Переменная
  */
-class Variable implements IVariable
+class Variable implements VariableInterface
 {
     use TValue;
 
