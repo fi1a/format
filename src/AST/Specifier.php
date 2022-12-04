@@ -7,7 +7,7 @@ namespace Fi1a\Format\AST;
 /**
  * Спецификатор
  */
-class Specifier implements ISpecifier
+class Specifier implements SpecifierInterface
 {
     /**
      * @var string

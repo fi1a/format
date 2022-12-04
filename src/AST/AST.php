@@ -178,7 +178,7 @@ class AST implements ASTInterface
      *
      * @param mixed[] $values
      */
-    private function specifier(Tokenizer $tokenizer, IToken $tokenSeparator, array $values): ISpecifier
+    private function specifier(Tokenizer $tokenizer, IToken $tokenSeparator, array $values): SpecifierInterface
     {
         $tokenSpecifier = $tokenizer->next();
         if ($tokenSpecifier === ITokenizer::T_EOF) {
