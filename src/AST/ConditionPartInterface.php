@@ -7,6 +7,6 @@ namespace Fi1a\Format\AST;
 /**
  * Часть условия
  */
-interface IConditionPart extends IModifier
+interface ConditionPartInterface extends IModifier
 {
 }
