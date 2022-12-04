@@ -7,7 +7,7 @@ namespace Fi1a\Format\AST;
 /**
  * Текстовый узел
  */
-class Text implements IText
+class Text implements TextInterface
 {
     /**
      * @var string

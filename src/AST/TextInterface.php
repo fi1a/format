@@ -7,7 +7,7 @@ namespace Fi1a\Format\AST;
 /**
  * Текстовая узел
  */
-interface IText extends NodeInterface
+interface TextInterface extends NodeInterface
 {
     /**
      * Конструктор
