@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Fi1a\Format;
 
-use Fi1a\Format\Specifier\ISpecifier;
+use Fi1a\Format\Specifier\SpecifierInterface;
 
 /**
  * Интерфейс класса форматирования строковых шаблонов
@@ -48,7 +48,7 @@ interface IFormatter
     /**
      * Возвращает функцию спецификатор с таким именем
      */
-    public static function getSpecifier(string $name): ISpecifier;
+    public static function getSpecifier(string $name): SpecifierInterface;
 
     /**
      * Добавить сокращение

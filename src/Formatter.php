@@ -9,7 +9,7 @@ use Fi1a\Format\AST\NodeInterface;
 use Fi1a\Format\AST\TextInterface;
 use Fi1a\Format\AST\VariableInterface;
 use Fi1a\Format\Exception\SpecifierNotFoundException;
-use Fi1a\Format\Specifier\ISpecifier;
+use Fi1a\Format\Specifier\SpecifierInterface;
 use InvalidArgumentException;
 
 use const PREG_OFFSET_CAPTURE;
@@ -107,8 +107,8 @@ class Formatter implements IFormatter
         if (static::hasSpecifier($name)) {
             return false;
         }
-        if (!is_subclass_of($specifier, ISpecifier::class)) {
-            throw new InvalidArgumentException('The class must implement the interface ' . ISpecifier::class);
+        if (!is_subclass_of($specifier, SpecifierInterface::class)) {
+            throw new InvalidArgumentException('The class must implement the interface ' . SpecifierInterface::class);
         }
         static::$specifiers[mb_strtolower($name)] = $specifier;
 
@@ -146,7 +146,7 @@ class Formatter implements IFormatter
     /**
      * @inheritDoc
      */
-    public static function getSpecifier(string $name): ISpecifier
+    public static function getSpecifier(string $name): SpecifierInterface
     {
         if (!$name) {
             throw new InvalidArgumentException('Argument "$name" cannot be empty');
@@ -158,7 +158,7 @@ class Formatter implements IFormatter
         }
         $class = static::$specifiers[mb_strtolower($name)];
         /**
-         * @var ISpecifier $instance
+         * @var SpecifierInterface $instance
          */
         $instance = new $class();
 

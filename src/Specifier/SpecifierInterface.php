@@ -7,7 +7,7 @@ namespace Fi1a\Format\Specifier;
 /**
  * Интерфейс спецификатора
  */
-interface ISpecifier
+interface SpecifierInterface
 {
     /**
      * Форматирование значения с переданными модификаторами спецификатора

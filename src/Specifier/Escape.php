@@ -9,7 +9,7 @@ use const ENT_COMPAT;
 /**
  * Преобразует специальные символы в HTML-сущности
  */
-class Escape implements ISpecifier
+class Escape implements SpecifierInterface
 {
     /**
      * @inheritDoc

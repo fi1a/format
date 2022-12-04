@@ -9,7 +9,7 @@ use InvalidArgumentException;
 /**
  * Форматирование размера памяти
  */
-class Memory implements ISpecifier
+class Memory implements SpecifierInterface
 {
     /**
      * @var string[]

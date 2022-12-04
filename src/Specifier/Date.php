@@ -9,7 +9,7 @@ use InvalidArgumentException;
 /**
  * Спецификатор функции date
  */
-class Date implements ISpecifier
+class Date implements SpecifierInterface
 {
     /**
      * @var string

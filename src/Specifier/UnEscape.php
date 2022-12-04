@@ -9,7 +9,7 @@ use const ENT_COMPAT;
 /**
  * Преобразует специальные HTML-сущности обратно в соответствующие символы
  */
-class UnEscape implements ISpecifier
+class UnEscape implements SpecifierInterface
 {
     /**
      * @inheritDoc

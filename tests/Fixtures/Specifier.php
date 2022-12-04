@@ -7,7 +7,7 @@ namespace Fi1a\Unit\Format\Fixtures;
 /**
  * Спецификатор для тестов
  */
-class Specifier implements \Fi1a\Format\Specifier\ISpecifier
+class Specifier implements \Fi1a\Format\Specifier\SpecifierInterface
 {
     /**
      * @inheritDoc
