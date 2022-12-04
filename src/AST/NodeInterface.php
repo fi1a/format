@@ -7,6 +7,6 @@ namespace Fi1a\Format\AST;
 /**
  * Узел AST
  */
-interface INode
+interface NodeInterface
 {
 }

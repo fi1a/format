@@ -7,7 +7,7 @@ namespace Fi1a\Format\AST;
 /**
  * Спецификатор
  */
-interface ISpecifier extends INode
+interface ISpecifier extends NodeInterface
 {
     /**
      * Конструктор
