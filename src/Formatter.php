@@ -34,7 +34,7 @@ class Formatter implements FormatterInterface
     /**
      * @inheritDoc
      */
-    public static function format(string $string, array $values = []): string
+    public static function format(string $string, array $values = [], array $modifierValues = []): string
     {
         $matches = [];
         while (
@@ -56,7 +56,7 @@ class Formatter implements FormatterInterface
                 . substr($string, $matches[4][1] + mb_strlen($shortcutName));
         }
 
-        $ast = new AST($string, $values);
+        $ast = new AST($string, $values, $modifierValues);
         $formatted = '';
 
         /**

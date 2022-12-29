@@ -382,9 +382,11 @@ class FormatterTest extends TestCase
                     'key1' => [
                         'key2' => 123,
                     ],
-                    'modifier' => '\'.9d',
                 ],
                 '......123',
+                [
+                    'modifier' => '\'.9d',
+                ],
             ],
             // 43
             [
@@ -555,20 +557,24 @@ class FormatterTest extends TestCase
                 '{{|spf(key1 , key2)}}',
                 [
                     1,
+                ],
+                '1',
+                [
                     'key1' => false,
                     'key2' => true,
                 ],
-                '1',
             ],
             // 59
             [
                 '{{|spf(key1,key2)}}',
                 [
                     1,
+                ],
+                '1',
+                [
                     'key1' => false,
                     'key2' => true,
                 ],
-                '1',
             ],
             // 60
             [
@@ -742,14 +748,15 @@ class FormatterTest extends TestCase
      * Форматирование и подстановка значений в строке
      *
      * @param mixed[]  $values
+     * @param mixed[]  $modifierValues
      *
      * @dataProvider dataProviderFormat
      */
-    public function testFormat(string $string, array $values, string $equal)
+    public function testFormat(string $string, array $values, string $equal, array $modifierValues = [])
     {
         Formatter::addSpecifier('spf', Specifier::class);
         setlocale(LC_ALL, 'en_US.UTF-8');
-        $this->assertEquals($equal, Formatter::format($string, $values));
+        $this->assertEquals($equal, Formatter::format($string, $values, $modifierValues));
     }
 
     /**
