@@ -22,18 +22,18 @@ class Variable implements VariableInterface
     private $values;
 
     /**
-     * @var SpecifierInterface|null
+     * @var SpecifierInterface[]
      */
-    private $specifier;
+    private $specifiers;
 
     /**
      * @inheritDoc
      */
-    public function __construct(string $key, array $values = [], ?SpecifierInterface $specifier = null)
+    public function __construct(string $key, array $values = [], array $specifiers = [])
     {
         $this->key = $key;
         $this->values = $values;
-        $this->specifier = $specifier;
+        $this->specifiers = $specifiers;
     }
 
     /**
@@ -55,8 +55,8 @@ class Variable implements VariableInterface
     /**
      * @inheritDoc
      */
-    public function getSpecifier(): ?SpecifierInterface
+    public function getSpecifiers(): array
     {
-        return $this->specifier;
+        return $this->specifiers;
     }
 }
