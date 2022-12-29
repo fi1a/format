@@ -64,7 +64,7 @@ class AST implements ASTInterface
     /**
      * @inheritDoc
      */
-    public function __construct(string $string, array $values = [])
+    public function __construct(string $string, array $values = [], array $modifierValues = [])
     {
         $this->nodes = new Nodes();
         $statements = 0;
@@ -89,7 +89,7 @@ class AST implements ASTInterface
             /** @psalm-suppress PossiblyInvalidMethodCall */
             if ($token->getType() === Token::T_VARIABLE && $conditions->isSatisfies()) {
                 /** @psalm-suppress PossiblyInvalidArgument */
-                $this->variable($counter, $tokenizer, $token, $values);
+                $this->variable($counter, $tokenizer, $token, $values, $modifierValues);
 
                 continue;
             }
@@ -153,9 +153,15 @@ class AST implements ASTInterface
      * Переменная
      *
      * @param mixed[] $values
+     * @param mixed[] $modifierValues
      */
-    private function variable(Counter $counter, Tokenizer $tokenizer, IToken $tokenVariable, array $values): void
-    {
+    private function variable(
+        Counter $counter,
+        Tokenizer $tokenizer,
+        IToken $tokenVariable,
+        array $values,
+        array $modifierValues
+    ): void {
         $path = $tokenVariable->getImage();
         if ($path === '') {
             $path = (string) $counter->get();
@@ -167,7 +173,7 @@ class AST implements ASTInterface
         $specifier = null;
         if ($tokenizer->lookAtNextType() === Token::T_SEPARATOR) {
             /** @psalm-suppress PossiblyInvalidArgument */
-            $specifier = $this->specifier($tokenizer, $tokenizer->next(), $values);
+            $specifier = $this->specifier($tokenizer, $tokenizer->next(), $modifierValues);
         }
 
         $this->nodes[] = new Variable($path, $values, $specifier);
@@ -176,10 +182,13 @@ class AST implements ASTInterface
     /**
      * Спецификатор
      *
-     * @param mixed[] $values
+     * @param mixed[] $modifierValues
      */
-    private function specifier(Tokenizer $tokenizer, IToken $tokenSeparator, array $values): SpecifierInterface
-    {
+    private function specifier(
+        Tokenizer $tokenizer,
+        IToken $tokenSeparator,
+        array $modifierValues
+    ): SpecifierInterface {
         $tokenSpecifier = $tokenizer->next();
         if ($tokenSpecifier === ITokenizer::T_EOF) {
             throw new FormatErrorException(
@@ -279,7 +288,7 @@ class AST implements ASTInterface
                 }
                 /** @psalm-suppress PossiblyInvalidArgument */
                 $this->castValue($token, $value, $isVariable, $isQuote, $isSingle);
-                $modifiers[] = new Modifier($value, $values, $isVariable);
+                $modifiers[] = new Modifier($value, $modifierValues, $isVariable);
 
                 /** @psalm-suppress PossiblyInvalidMethodCall */
                 if ($token->getType() !== Token::T_QUOTE) {

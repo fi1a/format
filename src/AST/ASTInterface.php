@@ -12,9 +12,10 @@ interface ASTInterface
     /**
      * Конструктор
      *
-     * @param mixed[]  $values
+     * @param mixed[] $values
+     * @param mixed[] $modifierValues
      */
-    public function __construct(string $string, array $values = []);
+    public function __construct(string $string, array $values = [], array $modifierValues = []);
 
     /**
      * Возвращает список узлов

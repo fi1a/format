@@ -24,7 +24,8 @@ class DateTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         Formatter::format(
             '{{|date(now1, now2, now3)}}',
-            [time(), 'now1' => 'd.m.Y', 'now2' => 'h:i:s', 'now3' => false]
+            [time()],
+            ['now1' => 'd.m.Y', 'now2' => 'h:i:s', 'now3' => false]
         );
     }
 
