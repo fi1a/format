@@ -170,13 +170,13 @@ class AST implements ASTInterface
         if ($tokenizer->lookAtNextType() === Token::T_WHITESPACE) {
             $tokenizer->next();
         }
-        $specifier = null;
-        if ($tokenizer->lookAtNextType() === Token::T_SEPARATOR) {
+        $specifiers = [];
+        while ($tokenizer->lookAtNextType() === Token::T_SEPARATOR) {
             /** @psalm-suppress PossiblyInvalidArgument */
-            $specifier = $this->specifier($tokenizer, $tokenizer->next(), $modifierValues);
+            $specifiers[] = $this->specifier($tokenizer, $tokenizer->next(), $modifierValues);
         }
 
-        $this->nodes[] = new Variable($path, $values, $specifier);
+        $this->nodes[] = new Variable($path, $values, $specifiers);
     }
 
     /**

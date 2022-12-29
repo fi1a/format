@@ -36,24 +36,20 @@ class Formatter implements FormatterInterface
      */
     public static function format(string $string, array $values = [], array $modifierValues = []): string
     {
-        $matches = [];
-        while (
+        foreach (static::$shortcuts as $shortcut => $specifier) {
+            $string = str_replace('~' . $shortcut, $specifier, $string);
+        }
+        if (
             preg_match(
-                '#(\{\{[\s\t\n]*)([0-9\w\_\:]*)([\s\t\n]*\|[\s\t\n]*|)~([^\}\s\t\n]*)([\s\t\n]*\}\})#',
+                '#([\s\t\n]*\|[\s\t\n]*|)~([^\}\|\s\t\n]*)([\s\t\n]*(\}\}|\|))#',
                 $string,
                 $matches,
                 PREG_OFFSET_CAPTURE
             )
         ) {
-            $shortcutName = mb_strtolower($matches[4][0]);
-            if (!isset(static::$shortcuts[$shortcutName])) {
-                throw new InvalidArgumentException(
-                    sprintf('Shortcut "%s" not found', $matches[4][0])
-                );
-            }
-            $string = substr($string, 0, $matches[4][1] - 1)
-                . static::$shortcuts[$shortcutName]
-                . substr($string, $matches[4][1] + mb_strlen($shortcutName));
+            throw new InvalidArgumentException(
+                sprintf('Shortcut "%s" not found', $matches[2][0])
+            );
         }
 
         $ast = new AST($string, $values, $modifierValues);
@@ -65,23 +61,24 @@ class Formatter implements FormatterInterface
         foreach ($ast->getNodes() as $node) {
             if ($node instanceof VariableInterface) {
                 $value = static::convert($node->getValue());
-                $specifier = $node->getSpecifier();
-                if ($specifier) {
-                    $specifierInstance = static::getSpecifier($specifier->getName());
-                    /**
-                     * @var mixed[] $args
-                     */
-                    $args = [$value];
-                    foreach ($specifier->getModifiers() as $modifier) {
-                        /** @psalm-suppress MixedAssignment */
-                        $args[] = $modifier->getValue();
-                    }
-                    $formatted .= (string) call_user_func_array(
-                        [$specifierInstance, 'format'],
-                        $args
-                    );
 
-                    continue;
+                if (count($node->getSpecifiers())) {
+                    foreach ($node->getSpecifiers() as $specifier) {
+                        $specifierInstance = static::getSpecifier($specifier->getName());
+                        /**
+                         * @var mixed[] $args
+                         */
+                        $args = [$value];
+                        foreach ($specifier->getModifiers() as $modifier) {
+                            /** @psalm-suppress MixedAssignment */
+                            $args[] = $modifier->getValue();
+                        }
+                        /** @var string $value */
+                        $value = call_user_func_array(
+                            [$specifierInstance, 'format'],
+                            $args
+                        );
+                    }
                 }
 
                 $formatted .= $value;

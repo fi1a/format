@@ -741,6 +741,14 @@ class FormatterTest extends TestCase
                 ],
                 '2',
             ],
+            // 77
+            [
+                '{{|unescape|date("d.m.Y")|escape()}}',
+                [
+                    strtotime('29.12.2022'),
+                ],
+                '29.12.2022',
+            ],
         ];
     }
 
@@ -1058,6 +1066,19 @@ class FormatterTest extends TestCase
         $this->assertEquals(
             'test ......123......123 test',
             Formatter::format('test {{|~spf}}{{0|~spf}} test', [123])
+        );
+        $this->assertTrue(Formatter::deleteShortcut('spf'));
+    }
+
+    /**
+     * Тестирование методов работы с сокращениями в цепочке
+     */
+    public function testShortcutInChain(): void
+    {
+        $this->assertTrue(Formatter::addShortcut('spf', 'sprintf("\'.9d")'));
+        $this->assertEquals(
+            'test ......123 test',
+            Formatter::format('test {{|unescape()|~spf|escape}} test', [123])
         );
         $this->assertTrue(Formatter::deleteShortcut('spf'));
     }

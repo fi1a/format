@@ -630,6 +630,14 @@ class Tokenizer extends AParseFunction
             $image = $symbol;
         }
         $current++;
+
+        $nextSymbol = mb_substr($source, $current, 1);
+        if ($nextSymbol === '|') {
+            $this->setParseFunction('parseSeparator');
+
+            return;
+        }
+
         $this->setParseFunction('parseStatement');
     }
 
@@ -755,6 +763,12 @@ class Tokenizer extends AParseFunction
                 $type = Token::T_SPECIFIER;
                 $this->openParenthesesReturn = 'parseSpecifierModifiers';
                 $this->setParseFunction('parseOpenParentheses');
+
+                return;
+            }
+            if ($symbol === '|') {
+                $type = Token::T_SPECIFIER;
+                $this->setParseFunction('parseSeparator');
 
                 return;
             }

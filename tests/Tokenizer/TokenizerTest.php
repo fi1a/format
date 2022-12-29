@@ -926,6 +926,21 @@ class TokenizerTest extends TestCase
                     Token::T_CLOSE_PARENTHESES, Token::T_CLOSE_STATEMENT,
                 ],
             ],
+            // 70
+            [
+                '{{0|unescape|date("d.m.Y")|escape()}}',
+                16,
+                [
+                    '{{', '0', '|', 'unescape', '|', 'date', '(', '"', 'd.m.Y', '"', ')', '|', 'escape', '(', ')', '}}',
+                ],
+                [
+                    Token::T_OPEN_STATEMENT, Token::T_VARIABLE, Token::T_SEPARATOR, Token::T_SPECIFIER,
+                    Token::T_SEPARATOR, Token::T_SPECIFIER, Token::T_OPEN_PARENTHESES, Token::T_QUOTE,
+                    Token::T_MODIFIER, Token::T_QUOTE, Token::T_CLOSE_PARENTHESES, Token::T_SEPARATOR,
+                    Token::T_SPECIFIER, Token::T_OPEN_PARENTHESES, Token::T_CLOSE_PARENTHESES,
+                    Token::T_CLOSE_STATEMENT,
+                ],
+            ],
         ];
     }
 
