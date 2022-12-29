@@ -36,20 +36,24 @@ class Formatter implements FormatterInterface
      */
     public static function format(string $string, array $values = [], array $modifierValues = []): string
     {
-        foreach (static::$shortcuts as $shortcut => $specifier) {
-            $string = str_replace('~' . $shortcut, $specifier, $string);
-        }
-        if (
+        $matches = [];
+        while (
             preg_match(
                 '#([\s\t\n]*\|[\s\t\n]*|)~([^\}\|\s\t\n]*)([\s\t\n]*(\}\}|\|))#',
                 $string,
                 $matches,
                 PREG_OFFSET_CAPTURE
-            )
+            ) > 0
         ) {
-            throw new InvalidArgumentException(
-                sprintf('Shortcut "%s" not found', $matches[2][0])
-            );
+            $shortcutName = mb_strtolower($matches[2][0]);
+            if (!isset(static::$shortcuts[$shortcutName])) {
+                throw new InvalidArgumentException(
+                    sprintf('Shortcut "%s" not found', $matches[4][0])
+                );
+            }
+            $string = substr($string, 0, $matches[2][1] - 1)
+                . static::$shortcuts[$shortcutName]
+                . substr($string, $matches[2][1] + mb_strlen($shortcutName));
         }
 
         $ast = new AST($string, $values, $modifierValues);
