@@ -15,6 +15,9 @@ use PHPUnit\Framework\TestCase;
 
 use const LC_ALL;
 
+/**
+ * Форматирование строковых шаблонов
+ */
 class FormatterTest extends TestCase
 {
     public $key = 'key_value';
@@ -749,6 +752,30 @@ class FormatterTest extends TestCase
                 ],
                 '29.12.2022',
             ],
+            // 78
+            [
+                '{{ 0 }}',
+                [
+                    '&',
+                ],
+                '&amp;',
+            ],
+            // 79
+            [
+                '{{  }}',
+                [
+                    '&',
+                ],
+                '&amp;',
+            ],
+            // 80
+            [
+                '{{}}',
+                [
+                    '&',
+                ],
+                '&amp;',
+            ],
         ];
     }
 
@@ -1071,14 +1098,66 @@ class FormatterTest extends TestCase
     }
 
     /**
+     * Тестирование методов работы с сокращениями
+     */
+    public function testShortcutText(): void
+    {
+        $this->assertTrue(Formatter::addShortcut('spf', 'sprintf("\'.9d")'));
+        $this->assertEquals(
+            '~spf ......123......123 |~spf|',
+            Formatter::format('~spf {{|~spf}}{{0|~spf}} |~spf|', [123])
+        );
+        $this->assertTrue(Formatter::deleteShortcut('spf'));
+    }
+
+    /**
+     * Тестирование методов работы с сокращениями
+     */
+    public function testShortcutEscape(): void
+    {
+        $this->assertTrue(Formatter::addShortcut('spf', 'sprintf("\'.9d")'));
+        $this->assertEquals(
+            '{{|escape|~spf}} ......123......123',
+            Formatter::format('\\{{|~spf\\}} {{|~spf}}{{0|~spf}}', [123])
+        );
+        $this->assertTrue(Formatter::deleteShortcut('spf'));
+    }
+
+    /**
+     * Тестирование методов работы с сокращениями
+     */
+    public function testShortcutEscapeChain(): void
+    {
+        $this->assertTrue(Formatter::addShortcut('spf', 'sprintf("\'.9d")'));
+        $this->assertEquals(
+            '{{|escape|~spf|~spf}} ......123......123',
+            Formatter::format('\\{{|~spf|~spf\\}} {{|~spf}}{{0|~spf}}', [123])
+        );
+        $this->assertTrue(Formatter::deleteShortcut('spf'));
+    }
+
+    /**
+     * Тестирование методов работы с сокращениями в цепочке
+     */
+    public function testShortcutInChainWithText(): void
+    {
+        $this->assertTrue(Formatter::addShortcut('spf', 'sprintf("\'.9d")'));
+        $this->assertEquals(
+            'test ......123 test',
+            Formatter::format('test {{|unescape()|~spf|escape}} test', [123])
+        );
+        $this->assertTrue(Formatter::deleteShortcut('spf'));
+    }
+
+    /**
      * Тестирование методов работы с сокращениями в цепочке
      */
     public function testShortcutInChain(): void
     {
         $this->assertTrue(Formatter::addShortcut('spf', 'sprintf("\'.9d")'));
         $this->assertEquals(
-            'test ......123 test',
-            Formatter::format('test {{|unescape()|~spf|escape}} test', [123])
+            '......123',
+            Formatter::format('{{|unescape()|~spf|escape}}', [123])
         );
         $this->assertTrue(Formatter::deleteShortcut('spf'));
     }
@@ -1090,6 +1169,14 @@ class FormatterTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         Formatter::format('{{|~spf}}', [123]);
+    }
+
+    /**
+     * Тестирование методов работы с сокращениями
+     */
+    public function testShortcutEscapeNotExists(): void
+    {
+        $this->assertEquals('{{|escape|~spf}}', Formatter::format('\\{{|~spf\\}}', [123]));
     }
 
     /**
@@ -1126,5 +1213,75 @@ class FormatterTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         Formatter::deleteShortcut('');
+    }
+
+    /**
+     * Спецификаторы, которые всегда используются
+     */
+    public function testAlwaysShortcut(): void
+    {
+        $this->assertFalse(Formatter::hasAlways('~spf'));
+        $this->assertTrue(Formatter::addShortcut('spf', 'sprintf("\'.9d")'));
+        $this->assertTrue(Formatter::useAlways('~spf'));
+        $this->assertFalse(Formatter::useAlways('~spf'));
+        $this->assertTrue(Formatter::hasAlways('~spf'));
+        $this->assertCount(2, Formatter::getAlways());
+        $this->assertEquals(['escape', '~spf'], Formatter::getAlways());
+        $this->assertTrue(Formatter::unuseAlways('~spf'));
+        $this->assertFalse(Formatter::unuseAlways('~spf'));
+        $this->assertFalse(Formatter::hasAlways('~spf'));
+        $this->assertTrue(Formatter::deleteShortcut('spf'));
+    }
+
+    /**
+     * Спецификаторы, которые всегда используются
+     *
+     * @depends testAlwaysShortcut
+     */
+    public function testAlwaysShortcutFormat(): void
+    {
+        $this->assertTrue(Formatter::addShortcut('spf', 'sprintf("\'.9d")'));
+        $this->assertTrue(Formatter::useAlways('~spf'));
+        $this->assertEquals(
+            '......123 test ......123',
+            Formatter::format('{{0|unescape}} test {{0|unescape}}', [123])
+        );
+        $this->assertEquals(
+            '......123 test ......123',
+            Formatter::format('{{0}} test {{0}}', [123])
+        );
+        $this->assertTrue(Formatter::unuseAlways('~spf'));
+        $this->assertTrue(Formatter::deleteShortcut('spf'));
+    }
+
+    /**
+     * Спецификаторы, которые всегда используются
+     */
+    public function testAlwaysSpecifier(): void
+    {
+        $this->assertFalse(Formatter::hasAlways('sprintf("\'.9d")'));
+        $this->assertTrue(Formatter::useAlways('sprintf("\'.9d")'));
+        $this->assertFalse(Formatter::useAlways('sprintf("\'.9d")'));
+        $this->assertTrue(Formatter::hasAlways('sprintf("\'.9d")'));
+        $this->assertCount(2, Formatter::getAlways());
+        $this->assertEquals(['escape', 'sprintf("\'.9d")'], Formatter::getAlways());
+        $this->assertTrue(Formatter::unuseAlways('sprintf("\'.9d")'));
+        $this->assertFalse(Formatter::unuseAlways('sprintf("\'.9d")'));
+        $this->assertFalse(Formatter::hasAlways('sprintf("\'.9d")'));
+    }
+
+    /**
+     * Спецификаторы, которые всегда используются
+     *
+     * @depends testAlwaysSpecifier
+     */
+    public function testAlwaysSpecifierFormat(): void
+    {
+        $this->assertTrue(Formatter::useAlways('sprintf("\'.9d")'));
+        $this->assertEquals(
+            '......123',
+            Formatter::format('{{}}', [123])
+        );
+        $this->assertTrue(Formatter::unuseAlways('sprintf("\'.9d")'));
     }
 }
