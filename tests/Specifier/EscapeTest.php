@@ -27,6 +27,6 @@ class EscapeTest extends TestCase
      */
     public function testFormat(): void
     {
-        $this->assertEquals('&quot;test&quot;', Formatter::format('{{|escape}}', ['"test"']));
+        $this->assertEquals('&amp;quot;test&amp;quot;', Formatter::format('{{|escape}}', ['"test"']));
     }
 }

@@ -32,28 +32,38 @@ class Formatter implements FormatterInterface
     private static $shortcuts = [];
 
     /**
+     * @var mixed[][]
+     */
+    private static $always = [];
+
+    /**
      * @inheritDoc
      */
     public static function format(string $string, array $values = [], array $modifierValues = []): string
     {
+        if (count(static::getAlways())) {
+            $string = static::applyAlwaysSpecifier($string, static::getAlways());
+        }
+
         $matches = [];
         while (
             preg_match(
-                '#([\s\t\n]*\|[\s\t\n]*|)~([^\}\|\s\t\n]*)([\s\t\n]*(\}\}|\|))#',
+                '#(([^\\\]+|^)\{\{(.*))([\s\t\n]*\|[\s\t\n]*|([^\\\]*\{\{(.*)))'
+                . '~([^\\\}\|\s\t\n]*)([\s\t\n]*([^\\\]*\}\})|(\|.+\}\}))#',
                 $string,
                 $matches,
                 PREG_OFFSET_CAPTURE
             ) > 0
         ) {
-            $shortcutName = mb_strtolower($matches[2][0]);
+            $shortcutName = mb_strtolower($matches[7][0]);
             if (!isset(static::$shortcuts[$shortcutName])) {
                 throw new InvalidArgumentException(
-                    sprintf('Shortcut "%s" not found', $matches[4][0])
+                    sprintf('Shortcut "%s" not found', $matches[7][0])
                 );
             }
-            $string = substr($string, 0, $matches[2][1] - 1)
+            $string = substr($string, 0, $matches[7][1] - 1)
                 . static::$shortcuts[$shortcutName]
-                . substr($string, $matches[2][1] + mb_strlen($shortcutName));
+                . substr($string, $matches[7][1] + mb_strlen($shortcutName));
         }
 
         $ast = new AST($string, $values, $modifierValues);
@@ -216,6 +226,57 @@ class Formatter implements FormatterInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public static function useAlways(string $specifier, int $sort = 500): bool
+    {
+        if (static::hasAlways($specifier)) {
+            return false;
+        }
+
+        static::$always[$specifier] = [
+            'sort' => $sort,
+        ];
+
+        return true;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function hasAlways(string $specifier): bool
+    {
+        return array_key_exists($specifier, static::$always);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function unuseAlways(string $specifier): bool
+    {
+        if (!static::hasAlways($specifier)) {
+            return false;
+        }
+        unset(static::$always[$specifier]);
+
+        return true;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function getAlways(): array
+    {
+        uasort(static::$always, function (array $a, array $b) {
+            return (int) $a['sort'] - (int) $b['sort'];
+        });
+        /** @var string[] $always */
+        $always = array_keys(static::$always);
+
+        return $always;
+    }
+
+    /**
      * Конвертирует значение в строку
      *
      * @param mixed $value
@@ -239,5 +300,45 @@ class Formatter implements FormatterInterface
         }
 
         return (string) $value;
+    }
+
+    /**
+     * Добавляет спецификаторы, которые всегда используются
+     *
+     * @param string[] $always
+     */
+    private static function applyAlwaysSpecifier(string $string, array $always): string
+    {
+        $alwaysPart = implode('|', $always);
+        $matches = [];
+        $offset = 0;
+        while (
+            preg_match(
+                '#(\{\{)([\s\t\n]*)([\s\t\n]*)([^}\|]*)([\s\t\n]*)(\}\}|\|(.+)\}\})#ui',
+                $string,
+                $matches,
+                PREG_OFFSET_CAPTURE,
+                $offset
+            ) > 0
+        ) {
+            $key = 4;
+            $offset = $matches[$key][1] + mb_strlen('|' . $alwaysPart);
+
+            if (
+                preg_match('#^if([\s\t\n]*\(|)#i', $matches[$key][0]) > 0
+                || preg_match('#^elseif([\s\t\n]*\(|)#i', $matches[$key][0]) > 0
+                || preg_match('#^([\s\t\n]*)endif([\s\t\n]*)$#i', $matches[$key][0]) > 0
+                || preg_match('#^([\s\t\n]*)else([\s\t\n]*)$#i', $matches[$key][0]) > 0
+            ) {
+                continue;
+            }
+
+            $string = substr($string, 0, $matches[$key][1])
+                . $matches[$key][0]
+                . '|' . $alwaysPart
+                . substr($string, $matches[$key][1] + mb_strlen($matches[$key][0]));
+        }
+
+        return $string;
     }
 }
