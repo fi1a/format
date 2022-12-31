@@ -1226,6 +1226,33 @@ class TokenizerTest extends TestCase
                     Token::T_TRUE, Token::T_CLOSE_PARENTHESES, Token::T_CLOSE_STATEMENT,
                 ],
             ],
+            // 89
+            [
+                '{{if(aorb)}}{{endif}}',
+                9,
+                [
+                    '{{', 'if', '(', 'aorb', ')', '}}', '{{', 'endif', '}}',
+                ],
+                [
+                    Token::T_OPEN_STATEMENT, Token::T_IF, Token::T_OPEN_PARENTHESES,
+                    Token::T_CONDITION_PART, Token::T_CLOSE_PARENTHESES, Token::T_CLOSE_STATEMENT,
+                    Token::T_OPEN_STATEMENT, Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
+                ],
+            ],
+            // 90
+            [
+                '{{if(a or b)}}{{endif}}',
+                13,
+                [
+                    '{{', 'if', '(', 'a', ' ', 'or', ' ', 'b', ')', '}}', '{{', 'endif', '}}',
+                ],
+                [
+                    Token::T_OPEN_STATEMENT, Token::T_IF, Token::T_OPEN_PARENTHESES,
+                    Token::T_CONDITION_PART, Token::T_WHITESPACE, Token::T_LOGICAL_OR, Token::T_WHITESPACE,
+                    Token::T_CONDITION_PART, Token::T_CLOSE_PARENTHESES, Token::T_CLOSE_STATEMENT,
+                    Token::T_OPEN_STATEMENT, Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
+                ],
+            ],
         ];
     }
 
