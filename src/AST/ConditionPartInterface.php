@@ -9,4 +9,8 @@ namespace Fi1a\Format\AST;
  */
 interface ConditionPartInterface extends ModifierInterface
 {
+    /**
+     * @return SpecifierInterface[]
+     */
+    public function getSpecifiers(): array;
 }

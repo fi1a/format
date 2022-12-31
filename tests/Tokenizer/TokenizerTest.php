@@ -941,6 +941,273 @@ class TokenizerTest extends TestCase
                     Token::T_CLOSE_STATEMENT,
                 ],
             ],
+            // 71
+            [
+                '{{if(key1:key2|unescape === "&")}}{{endif}}',
+                17,
+                [
+                    '{{', 'if', '(', 'key1:key2', '|', 'unescape', ' ', '===', ' ', '"', '&', '"', ')', '}}',
+                    '{{', 'endif', '}}',
+                ],
+                [
+                    Token::T_OPEN_STATEMENT, Token::T_IF, Token::T_OPEN_PARENTHESES, Token::T_CONDITION_PART,
+                    Token::T_SEPARATOR, Token::T_SPECIFIER, Token::T_WHITESPACE, Token::T_IS_IDENTICAL,
+                    Token::T_WHITESPACE, Token::T_QUOTE, Token::T_CONDITION_PART, Token::T_QUOTE,
+                    Token::T_CLOSE_PARENTHESES, Token::T_CLOSE_STATEMENT, Token::T_OPEN_STATEMENT, Token::T_ENDIF,
+                    Token::T_CLOSE_STATEMENT,
+                ],
+            ],
+            // 72
+            [
+                '{{if( key1:key2 | unescape )}}{{endif}}',
+                15,
+                [
+                    '{{', 'if', '(', ' ', 'key1:key2', ' ', '|', ' ', 'unescape', ' ', ')', '}}', '{{', 'endif', '}}',
+                ],
+                [
+                    Token::T_OPEN_STATEMENT, Token::T_IF, Token::T_OPEN_PARENTHESES, Token::T_WHITESPACE,
+                    Token::T_CONDITION_PART, Token::T_WHITESPACE, Token::T_SEPARATOR, Token::T_WHITESPACE,
+                    Token::T_SPECIFIER, Token::T_WHITESPACE, Token::T_CLOSE_PARENTHESES, Token::T_CLOSE_STATEMENT,
+                    Token::T_OPEN_STATEMENT, Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
+                ],
+            ],
+            // 73
+            [
+                '{{if( key1:key2 | unescape | escape )}}{{endif}}',
+                19,
+                [
+                    '{{', 'if', '(', ' ', 'key1:key2', ' ', '|', ' ', 'unescape', ' ', '|', ' ', 'escape',
+                    ' ', ')', '}}', '{{', 'endif', '}}',
+                ],
+                [
+                    Token::T_OPEN_STATEMENT, Token::T_IF, Token::T_OPEN_PARENTHESES, Token::T_WHITESPACE,
+                    Token::T_CONDITION_PART, Token::T_WHITESPACE, Token::T_SEPARATOR, Token::T_WHITESPACE,
+                    Token::T_SPECIFIER, Token::T_WHITESPACE, Token::T_SEPARATOR, Token::T_WHITESPACE,
+                    Token::T_SPECIFIER, Token::T_WHITESPACE, Token::T_CLOSE_PARENTHESES, Token::T_CLOSE_STATEMENT,
+                    Token::T_OPEN_STATEMENT, Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
+                ],
+            ],
+            // 74
+            [
+                '{{if( key1:key2 | unescape | escape === key1:key2 | unescape | escape )}}{{endif}}',
+                31,
+                [
+                    '{{', 'if', '(', ' ', 'key1:key2', ' ', '|', ' ', 'unescape', ' ', '|', ' ', 'escape',
+                    ' ', '===', ' ', 'key1:key2', ' ', '|', ' ', 'unescape', ' ', '|', ' ', 'escape', ' ', ')', '}}',
+                    '{{', 'endif', '}}',
+                ],
+                [
+                    Token::T_OPEN_STATEMENT, Token::T_IF, Token::T_OPEN_PARENTHESES, Token::T_WHITESPACE,
+                    Token::T_CONDITION_PART, Token::T_WHITESPACE, Token::T_SEPARATOR, Token::T_WHITESPACE,
+                    Token::T_SPECIFIER, Token::T_WHITESPACE, Token::T_SEPARATOR, Token::T_WHITESPACE,
+                    Token::T_SPECIFIER, Token::T_WHITESPACE,
+                    Token::T_IS_IDENTICAL,
+                    Token::T_WHITESPACE,
+                    Token::T_CONDITION_PART, Token::T_WHITESPACE, Token::T_SEPARATOR, Token::T_WHITESPACE,
+                    Token::T_SPECIFIER, Token::T_WHITESPACE, Token::T_SEPARATOR, Token::T_WHITESPACE,
+                    Token::T_SPECIFIER, Token::T_WHITESPACE,
+
+                    Token::T_CLOSE_PARENTHESES, Token::T_CLOSE_STATEMENT,
+                    Token::T_OPEN_STATEMENT, Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
+                ],
+            ],
+            // 75
+            [
+                '{{if(key1:key2|unescape|escape)}}{{endif}}',
+                13,
+                [
+                    '{{', 'if', '(', 'key1:key2', '|', 'unescape', '|', 'escape', ')', '}}', '{{', 'endif', '}}',
+                ],
+                [
+                    Token::T_OPEN_STATEMENT, Token::T_IF, Token::T_OPEN_PARENTHESES,
+                    Token::T_CONDITION_PART, Token::T_SEPARATOR, Token::T_SPECIFIER, Token::T_SEPARATOR,
+                    Token::T_SPECIFIER, Token::T_CLOSE_PARENTHESES, Token::T_CLOSE_STATEMENT,
+                    Token::T_OPEN_STATEMENT, Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
+                ],
+            ],
+            // 76
+            [
+                '{{if((key1:key2|unescape|escape))}}{{endif}}',
+                15,
+                [
+                    '{{', 'if', '(', '(', 'key1:key2', '|', 'unescape', '|', 'escape', ')', ')', '}}', '{{', 'endif',
+                    '}}',
+                ],
+                [
+                    Token::T_OPEN_STATEMENT, Token::T_IF, Token::T_OPEN_PARENTHESES,
+                    Token::T_OPEN_PARENTHESES_CONDITION, Token::T_CONDITION_PART, Token::T_SEPARATOR,
+                    Token::T_SPECIFIER, Token::T_SEPARATOR, Token::T_SPECIFIER, Token::T_CLOSE_PARENTHESES_CONDITION,
+                    Token::T_CLOSE_PARENTHESES, Token::T_CLOSE_STATEMENT, Token::T_OPEN_STATEMENT, Token::T_ENDIF,
+                    Token::T_CLOSE_STATEMENT,
+                ],
+            ],
+            // 77
+            [
+                '{{if((key1:key2|unescape|escape==key1:key2))}}{{endif}}',
+                17,
+                [
+                    '{{', 'if', '(', '(', 'key1:key2', '|', 'unescape', '|', 'escape', '==', 'key1:key2', ')', ')',
+                    '}}', '{{', 'endif', '}}',
+                ],
+                [
+                    Token::T_OPEN_STATEMENT, Token::T_IF, Token::T_OPEN_PARENTHESES,
+                    Token::T_OPEN_PARENTHESES_CONDITION, Token::T_CONDITION_PART, Token::T_SEPARATOR,
+                    Token::T_SPECIFIER, Token::T_SEPARATOR, Token::T_SPECIFIER, Token::T_IS_EQUAL,
+                    Token::T_CONDITION_PART, Token::T_CLOSE_PARENTHESES_CONDITION, Token::T_CLOSE_PARENTHESES,
+                    Token::T_CLOSE_STATEMENT, Token::T_OPEN_STATEMENT, Token::T_ENDIF,
+                    Token::T_CLOSE_STATEMENT,
+                ],
+            ],
+            // 78
+            [
+                '{{if((key1:key2|unescape|escape == key1:key2))}}{{endif}}',
+                19,
+                [
+                    '{{', 'if', '(', '(', 'key1:key2', '|', 'unescape', '|', 'escape', ' ', '==', ' ',
+                    'key1:key2', ')', ')', '}}', '{{', 'endif', '}}',
+                ],
+                [
+                    Token::T_OPEN_STATEMENT, Token::T_IF, Token::T_OPEN_PARENTHESES,
+                    Token::T_OPEN_PARENTHESES_CONDITION, Token::T_CONDITION_PART, Token::T_SEPARATOR,
+                    Token::T_SPECIFIER, Token::T_SEPARATOR, Token::T_SPECIFIER, Token::T_WHITESPACE, Token::T_IS_EQUAL,
+                    Token::T_WHITESPACE, Token::T_CONDITION_PART, Token::T_CLOSE_PARENTHESES_CONDITION,
+                    Token::T_CLOSE_PARENTHESES, Token::T_CLOSE_STATEMENT, Token::T_OPEN_STATEMENT, Token::T_ENDIF,
+                    Token::T_CLOSE_STATEMENT,
+                ],
+            ],
+            // 79
+            [
+                '{{if((key1:key2|unescape|escape) == (key1:key2))}}{{endif}}',
+                21,
+                [
+                    '{{', 'if', '(', '(', 'key1:key2', '|', 'unescape', '|', 'escape', ')', ' ', '==', ' ',
+                    '(', 'key1:key2', ')', ')', '}}', '{{', 'endif', '}}',
+                ],
+                [
+                    Token::T_OPEN_STATEMENT, Token::T_IF, Token::T_OPEN_PARENTHESES,
+                    Token::T_OPEN_PARENTHESES_CONDITION, Token::T_CONDITION_PART, Token::T_SEPARATOR,
+                    Token::T_SPECIFIER, Token::T_SEPARATOR, Token::T_SPECIFIER, Token::T_CLOSE_PARENTHESES_CONDITION,
+                    Token::T_WHITESPACE, Token::T_IS_EQUAL, Token::T_WHITESPACE,  Token::T_OPEN_PARENTHESES_CONDITION,
+                    Token::T_CONDITION_PART, Token::T_CLOSE_PARENTHESES_CONDITION, Token::T_CLOSE_PARENTHESES,
+                    Token::T_CLOSE_STATEMENT, Token::T_OPEN_STATEMENT, Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
+                ],
+            ],
+            // 80
+            [
+                '{{if((key1:key2|unescape|escape',
+                9,
+                [
+                    '{{', 'if', '(', '(', 'key1:key2', '|', 'unescape', '|', 'escape',
+                ],
+                [
+                    Token::T_OPEN_STATEMENT, Token::T_IF, Token::T_OPEN_PARENTHESES,
+                    Token::T_OPEN_PARENTHESES_CONDITION, Token::T_CONDITION_PART, Token::T_SEPARATOR,
+                    Token::T_SPECIFIER, Token::T_SEPARATOR, Token::T_SPECIFIER,
+                ],
+            ],
+            // 81
+            [
+                '{{if(key1:key2|unescape|escape',
+                8,
+                [
+                    '{{', 'if', '(', 'key1:key2', '|', 'unescape', '|', 'escape',
+                ],
+                [
+                    Token::T_OPEN_STATEMENT, Token::T_IF, Token::T_OPEN_PARENTHESES, Token::T_CONDITION_PART,
+                    Token::T_SEPARATOR, Token::T_SPECIFIER, Token::T_SEPARATOR, Token::T_SPECIFIER,
+                ],
+            ],
+            // 82
+            [
+                '{{if(key1:key2|unescape(true)|escape(false))}}{{endif}}',
+                19,
+                [
+                    '{{', 'if', '(', 'key1:key2', '|', 'unescape', '(', 'true', ')', '|', 'escape',  '(', 'false',
+                    ')', ')', '}}', '{{', 'endif', '}}',
+                ],
+                [
+                    Token::T_OPEN_STATEMENT, Token::T_IF, Token::T_OPEN_PARENTHESES, Token::T_CONDITION_PART,
+                    Token::T_SEPARATOR, Token::T_SPECIFIER, Token::T_OPEN_PARENTHESES, Token::T_TRUE,
+                    Token::T_CLOSE_PARENTHESES, Token::T_SEPARATOR, Token::T_SPECIFIER,  Token::T_OPEN_PARENTHESES,
+                    Token::T_FALSE, Token::T_CLOSE_PARENTHESES, Token::T_CLOSE_PARENTHESES, Token::T_CLOSE_STATEMENT,
+                    Token::T_OPEN_STATEMENT, Token::T_ENDIF, Token::T_CLOSE_STATEMENT,
+                ],
+            ],
+            // 83
+            [
+                '{{if(key1:key2|unescape(true)|escape("1"))}}{{endif}}',
+                21,
+                [
+                    '{{', 'if', '(', 'key1:key2', '|', 'unescape', '(', 'true', ')', '|', 'escape',  '(', '"', '1',
+                    '"', ')', ')', '}}', '{{', 'endif', '}}',
+                ],
+                [
+                    Token::T_OPEN_STATEMENT, Token::T_IF, Token::T_OPEN_PARENTHESES, Token::T_CONDITION_PART,
+                    Token::T_SEPARATOR, Token::T_SPECIFIER, Token::T_OPEN_PARENTHESES, Token::T_TRUE,
+                    Token::T_CLOSE_PARENTHESES, Token::T_SEPARATOR, Token::T_SPECIFIER,  Token::T_OPEN_PARENTHESES,
+                    Token::T_QUOTE, Token::T_MODIFIER, Token::T_QUOTE, Token::T_CLOSE_PARENTHESES,
+                    Token::T_CLOSE_PARENTHESES, Token::T_CLOSE_STATEMENT, Token::T_OPEN_STATEMENT, Token::T_ENDIF,
+                    Token::T_CLOSE_STATEMENT,
+                ],
+            ],
+            // 84
+            [
+                '{{if(key1:key2|unescape("&amp;")==="&")}}{{endif}}',
+                20,
+                [
+                    '{{', 'if', '(', 'key1:key2', '|', 'unescape', '(', '"', '&amp;', '"', ')', '===', '"', '&', '"',
+                    ')', '}}', '{{', 'endif', '}}',
+                ],
+                [
+                    Token::T_OPEN_STATEMENT, Token::T_IF, Token::T_OPEN_PARENTHESES, Token::T_CONDITION_PART,
+                    Token::T_SEPARATOR, Token::T_SPECIFIER, Token::T_OPEN_PARENTHESES, Token::T_QUOTE,
+                    Token::T_MODIFIER, Token::T_QUOTE, Token::T_CLOSE_PARENTHESES, Token::T_IS_IDENTICAL,
+                    Token::T_QUOTE, Token::T_CONDITION_PART, Token::T_QUOTE, Token::T_CLOSE_PARENTHESES,
+                    Token::T_CLOSE_STATEMENT, Token::T_OPEN_STATEMENT, Token::T_ENDIF,
+                    Token::T_CLOSE_STATEMENT,
+                ],
+            ],
+            // 85
+            [
+                '{{ 0 }}',
+                5,
+                [
+                    '{{', ' ', '0', ' ', '}}',
+                ],
+                [
+                    Token::T_OPEN_STATEMENT, Token::T_WHITESPACE, Token::T_VARIABLE, Token::T_WHITESPACE,
+                    Token::T_CLOSE_STATEMENT,
+                ],
+            ],
+            // 86
+            [
+                '{{if(0||0)}}{{endif}}',
+                11,
+                [
+                    '{{', 'if', '(', '0', '||', '0', ')', '}}','{{', 'endif', '}}',
+                ],
+                [
+                    Token::T_OPEN_STATEMENT, Token::T_IF, Token::T_OPEN_PARENTHESES,
+                    Token::T_CONDITION_PART, Token::T_OR, Token::T_CONDITION_PART,
+                    Token::T_CLOSE_PARENTHESES, Token::T_CLOSE_STATEMENT, Token::T_OPEN_STATEMENT, Token::T_ENDIF,
+                    Token::T_CLOSE_STATEMENT,
+                ],
+            ],
+            // 87
+            [
+                '{{if(0|escape||0)}}{{endif}}',
+                13,
+                [
+                    '{{', 'if', '(', '0', '|', 'escape', '||', '0', ')', '}}','{{', 'endif', '}}',
+                ],
+                [
+                    Token::T_OPEN_STATEMENT, Token::T_IF, Token::T_OPEN_PARENTHESES,
+                    Token::T_CONDITION_PART, Token::T_SEPARATOR, Token::T_SPECIFIER,
+                    Token::T_OR, Token::T_CONDITION_PART,
+                    Token::T_CLOSE_PARENTHESES, Token::T_CLOSE_STATEMENT, Token::T_OPEN_STATEMENT, Token::T_ENDIF,
+                    Token::T_CLOSE_STATEMENT,
+                ],
+            ],
         ];
     }
 

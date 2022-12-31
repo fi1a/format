@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Fi1a\Format\AST;
 
+use const ENT_COMPAT;
+
 /**
  * Переменная
  */
@@ -47,9 +49,12 @@ class Variable implements VariableInterface
     /**
      * @inheritDoc
      */
-    public function getValue()
+    public function getValue(): string
     {
-        return $this->getValueInternal($this->values, $this->explodePath($this->getKey()));
+        $value = static::convert($this->getValueInternal($this->values, $this->explodePath($this->getKey())));
+        $value = htmlspecialchars($value, ENT_COMPAT);
+
+        return (string) $this->applySpecifier($value, $this->getSpecifiers());
     }
 
     /**

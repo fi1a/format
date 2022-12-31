@@ -14,6 +14,9 @@ use Fi1a\Tokenizer\ITokenizer;
 use Fi1a\Tokenizer\PHP\Token as PHPToken;
 use Fi1a\Tokenizer\PHP\TokenizerFactory;
 
+use const FILTER_VALIDATE_FLOAT;
+use const FILTER_VALIDATE_INT;
+
 /**
  * AST
  */
@@ -99,7 +102,14 @@ class AST implements ASTInterface
                 || ($token->getType() === Token::T_ELSEIF && !$conditions->isSatisfies())
             ) {
                 /** @psalm-suppress PossiblyInvalidArgument */
-                $this->condition($conditions, $openConditions, $tokenizer, $token, $values);
+                $this->condition(
+                    $conditions,
+                    $openConditions,
+                    $tokenizer,
+                    $token,
+                    $modifierValues,
+                    $values
+                );
 
                 continue;
             }
@@ -360,6 +370,7 @@ class AST implements ASTInterface
     /**
      * Условие
      *
+     * @param mixed[] $modifierValues
      * @param mixed[] $values
      */
     private function condition(
@@ -367,6 +378,7 @@ class AST implements ASTInterface
         Counter $openConditions,
         Tokenizer $tokenizer,
         IToken $tokenIf,
+        array $modifierValues,
         array $values
     ): void {
         $token = $tokenizer->next();
@@ -413,6 +425,11 @@ class AST implements ASTInterface
                 /** @psalm-suppress PossiblyInvalidMethodCall */
                 $value = $token->getImage();
                 /** @psalm-suppress PossiblyInvalidMethodCall */
+                if ($token->getType() === Token::T_QUOTE) {
+                    continue;
+                }
+
+                /** @psalm-suppress PossiblyInvalidMethodCall */
                 if (
                     in_array(
                         $token->getType(),
@@ -426,7 +443,16 @@ class AST implements ASTInterface
                     $isVariable = true;
                     /** @psalm-suppress PossiblyInvalidArgument */
                     $this->castValue($token, $value, $isVariable, $isQuote, $isSingle);
-                    $conditionPart = new ConditionPart($value, $values, $isVariable);
+
+                    $specifiers = [];
+                    if ($isVariable) {
+                        while ($tokenizer->lookAtNextType() === Token::T_SEPARATOR) {
+                            /** @psalm-suppress PossiblyInvalidArgument */
+                            $specifiers[] = $this->specifier($tokenizer, $tokenizer->next(), $modifierValues);
+                        }
+                    }
+
+                    $conditionPart = new ConditionPart($value, $values, $isVariable, $specifiers);
                     try {
                         $value = var_export($conditionPart->getValue(), true);
                     } catch (NotFoundKey $exception) {
@@ -447,6 +473,7 @@ class AST implements ASTInterface
             );
         }
         $ifCondition = trim($ifCondition);
+
         if ($ifCondition === '') {
             throw new FormatErrorException(
                 sprintf(
@@ -495,6 +522,14 @@ class AST implements ASTInterface
         if ($isSingle && is_string($value)) {
             $value = str_replace("\'", "'", $value);
             $isVariable = false;
+        }
+        if (!$isQuote && !$isSingle && filter_var($value, FILTER_VALIDATE_INT) !== false) {
+            $value = (int) $value;
+            $isVariable = true;
+        }
+        if (!$isQuote && !$isSingle && filter_var($value, FILTER_VALIDATE_FLOAT) !== false) {
+            $value = (float) $value;
+            $isVariable = true;
         }
     }
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Fi1a\Unit\Format;
 
 use Fi1a\Format\AST\Exception\FormatErrorException;
+use Fi1a\Format\AST\Exception\NotFoundKey;
 use Fi1a\Format\Exception\SpecifierNotFoundException;
 use Fi1a\Format\Formatter;
 use Fi1a\Format\Specifier\SpecifierInterface;
@@ -776,6 +777,101 @@ class FormatterTest extends TestCase
                 ],
                 '&amp;',
             ],
+            // 81
+            [
+                '{{if(key:value === "&amp;")}}true{{endif}}',
+                [
+                    'key' => [
+                        'value' => '&',
+                    ],
+                ],
+                'true',
+            ],
+            // 82
+            [
+                '{{if(key:value|unescape === "&")}}true{{endif}}',
+                [
+                    'key' => [
+                        'value' => '&',
+                    ],
+                ],
+                'true',
+            ],
+            // 83
+            [
+                '{{if(key:value|~un === "&")}}true{{endif}}',
+                [
+                    'key' => [
+                        'value' => '&',
+                    ],
+                ],
+                'true',
+            ],
+            // 84
+            [
+                '{{}}',
+                [
+                    1,
+                ],
+                '1',
+            ],
+            // 85
+            [
+                '{{}}',
+                [
+                    0,
+                ],
+                '0',
+            ],
+            // 86
+            [
+                '{{if(0===0)}}true{{endif}}',
+                [
+                ],
+                'true',
+            ],
+            // 87
+            [
+                '{{if(1>0)}}true{{endif}}',
+                [
+                ],
+                'true',
+            ],
+            // 88
+            [
+                '{{if("0"!==0)}}true{{endif}}',
+                [
+                ],
+                'true',
+            ],
+            // 89
+            [
+                '{{if("0"==0)}}true{{endif}}',
+                [
+                ],
+                'true',
+            ],
+            // 90
+            [
+                '{{if(0||1)}}true{{endif}}',
+                [
+                ],
+                'true',
+            ],
+            // 91
+            [
+                '{{if(0|escape||1)}}true{{endif}}',
+                [
+                ],
+                'true',
+            ],
+            // 92
+            [
+                '{{if(0|escape || 1)}}true{{endif}}',
+                [
+                ],
+                'true',
+            ],
         ];
     }
 
@@ -790,6 +886,7 @@ class FormatterTest extends TestCase
     public function testFormat(string $string, array $values, string $equal, array $modifierValues = [])
     {
         Formatter::addSpecifier('spf', Specifier::class);
+        Formatter::addShortcut('un', 'unescape');
         setlocale(LC_ALL, 'en_US.UTF-8');
         $this->assertEquals($equal, Formatter::format($string, $values, $modifierValues));
     }
@@ -1117,7 +1214,7 @@ class FormatterTest extends TestCase
     {
         $this->assertTrue(Formatter::addShortcut('spf', 'sprintf("\'.9d")'));
         $this->assertEquals(
-            '{{|escape|~spf}} ......123......123',
+            '{{|~spf}} ......123......123',
             Formatter::format('\\{{|~spf\\}} {{|~spf}}{{0|~spf}}', [123])
         );
         $this->assertTrue(Formatter::deleteShortcut('spf'));
@@ -1130,7 +1227,7 @@ class FormatterTest extends TestCase
     {
         $this->assertTrue(Formatter::addShortcut('spf', 'sprintf("\'.9d")'));
         $this->assertEquals(
-            '{{|escape|~spf|~spf}} ......123......123',
+            '{{|~spf|~spf}} ......123......123',
             Formatter::format('\\{{|~spf|~spf\\}} {{|~spf}}{{0|~spf}}', [123])
         );
         $this->assertTrue(Formatter::deleteShortcut('spf'));
@@ -1176,7 +1273,7 @@ class FormatterTest extends TestCase
      */
     public function testShortcutEscapeNotExists(): void
     {
-        $this->assertEquals('{{|escape|~spf}}', Formatter::format('\\{{|~spf\\}}', [123]));
+        $this->assertEquals('{{|~spf}}', Formatter::format('\\{{|~spf\\}}', [123]));
     }
 
     /**
@@ -1216,72 +1313,11 @@ class FormatterTest extends TestCase
     }
 
     /**
-     * Спецификаторы, которые всегда используются
+     * Исключение при отсутсвии ключа у модификатора функции спецификатора
      */
-    public function testAlwaysShortcut(): void
+    public function testModifierException(): void
     {
-        $this->assertFalse(Formatter::hasAlways('~spf'));
-        $this->assertTrue(Formatter::addShortcut('spf', 'sprintf("\'.9d")'));
-        $this->assertTrue(Formatter::useAlways('~spf'));
-        $this->assertFalse(Formatter::useAlways('~spf'));
-        $this->assertTrue(Formatter::hasAlways('~spf'));
-        $this->assertCount(2, Formatter::getAlways());
-        $this->assertEquals(['escape', '~spf'], Formatter::getAlways());
-        $this->assertTrue(Formatter::unuseAlways('~spf'));
-        $this->assertFalse(Formatter::unuseAlways('~spf'));
-        $this->assertFalse(Formatter::hasAlways('~spf'));
-        $this->assertTrue(Formatter::deleteShortcut('spf'));
-    }
-
-    /**
-     * Спецификаторы, которые всегда используются
-     *
-     * @depends testAlwaysShortcut
-     */
-    public function testAlwaysShortcutFormat(): void
-    {
-        $this->assertTrue(Formatter::addShortcut('spf', 'sprintf("\'.9d")'));
-        $this->assertTrue(Formatter::useAlways('~spf'));
-        $this->assertEquals(
-            '......123 test ......123',
-            Formatter::format('{{0|unescape}} test {{0|unescape}}', [123])
-        );
-        $this->assertEquals(
-            '......123 test ......123',
-            Formatter::format('{{0}} test {{0}}', [123])
-        );
-        $this->assertTrue(Formatter::unuseAlways('~spf'));
-        $this->assertTrue(Formatter::deleteShortcut('spf'));
-    }
-
-    /**
-     * Спецификаторы, которые всегда используются
-     */
-    public function testAlwaysSpecifier(): void
-    {
-        $this->assertFalse(Formatter::hasAlways('sprintf("\'.9d")'));
-        $this->assertTrue(Formatter::useAlways('sprintf("\'.9d")'));
-        $this->assertFalse(Formatter::useAlways('sprintf("\'.9d")'));
-        $this->assertTrue(Formatter::hasAlways('sprintf("\'.9d")'));
-        $this->assertCount(2, Formatter::getAlways());
-        $this->assertEquals(['escape', 'sprintf("\'.9d")'], Formatter::getAlways());
-        $this->assertTrue(Formatter::unuseAlways('sprintf("\'.9d")'));
-        $this->assertFalse(Formatter::unuseAlways('sprintf("\'.9d")'));
-        $this->assertFalse(Formatter::hasAlways('sprintf("\'.9d")'));
-    }
-
-    /**
-     * Спецификаторы, которые всегда используются
-     *
-     * @depends testAlwaysSpecifier
-     */
-    public function testAlwaysSpecifierFormat(): void
-    {
-        $this->assertTrue(Formatter::useAlways('sprintf("\'.9d")'));
-        $this->assertEquals(
-            '......123',
-            Formatter::format('{{}}', [123])
-        );
-        $this->assertTrue(Formatter::unuseAlways('sprintf("\'.9d")'));
+        $this->expectException(NotFoundKey::class);
+        Formatter::format('{{|sprintf(modifier)}}', [0], []);
     }
 }

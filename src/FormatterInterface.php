@@ -65,26 +65,4 @@ interface FormatterInterface
      * Удалить сокращение
      */
     public static function deleteShortcut(string $name): bool;
-
-    /**
-     * Всегда использовать спецификатор при форматировании
-     */
-    public static function useAlways(string $specifier, int $sort = 500): bool;
-
-    /**
-     * Проверяет наличие спецификатора, который будет всегда использоватьмя при форматировании
-     */
-    public static function hasAlways(string $specifier): bool;
-
-    /**
-     * Удаляет спецификатор, который всегда используется при форматировании
-     */
-    public static function unuseAlways(string $specifier): bool;
-
-    /**
-     * Возвращает все спецификаторы,  которые всегда используются при форматировании
-     *
-     * @return string[]
-     */
-    public static function getAlways(): array;
 }
