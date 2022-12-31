@@ -7,6 +7,7 @@ use Fi1a\Format\Specifier\Date as DateSpecifier;
 use Fi1a\Format\Specifier\Declension;
 use Fi1a\Format\Specifier\Escape;
 use Fi1a\Format\Specifier\Memory;
+use Fi1a\Format\Specifier\Phone;
 use Fi1a\Format\Specifier\Sprintf;
 use Fi1a\Format\Specifier\Time;
 use Fi1a\Format\Specifier\UnEscape;
@@ -18,6 +19,7 @@ Formatter::addSpecifier('unescape', UnEscape::class);
 Formatter::addSpecifier('memory', Memory::class);
 Formatter::addSpecifier('time', Time::class);
 Formatter::addSpecifier('declension', Declension::class);
+Formatter::addSpecifier('phone', Phone::class);
 
 DateSpecifier::setDayOfWeek3('ru', [
     'Mon' => 'Пн',

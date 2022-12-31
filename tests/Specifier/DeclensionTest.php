@@ -52,7 +52,7 @@ class DeclensionTest extends TestCase
     }
 
     /**
-     * Склонение слов после числительных
+     * Исключение при двух модификаторах
      */
     public function testDeclensionException(): void
     {
@@ -61,7 +61,7 @@ class DeclensionTest extends TestCase
     }
 
     /**
-     * Склонение слов после числительных
+     * Исключение при больше чем три модификатора
      */
     public function testDeclensionExceptionMore(): void
     {
