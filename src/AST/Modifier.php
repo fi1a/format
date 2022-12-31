@@ -16,17 +16,17 @@ class Modifier implements ModifierInterface
     /**
      * @var mixed
      */
-    private $value;
+    protected $value;
 
     /**
      * @var mixed[]
      */
-    private $modifierValues;
+    protected $modifierValues;
 
     /**
      * @var bool
      */
-    private $isVariable;
+    protected $isVariable;
 
     /**
      * @inheritDoc

@@ -7,6 +7,7 @@ namespace Fi1a\Format\AST;
 use ArrayAccess;
 use ArrayObject;
 use Fi1a\Format\AST\Exception\NotFoundKey;
+use Fi1a\Format\Formatter;
 
 /**
  * Методы работы со значением
@@ -80,5 +81,61 @@ trait ValueTrait
         } while ($current < mb_strlen($path));
 
         return $paths;
+    }
+
+    /**
+     * Применить спецификаторы
+     *
+     * @param mixed $value
+     * @param SpecifierInterface[] $specifiers
+     *
+     * @return mixed
+     */
+    protected function applySpecifier($value, array $specifiers)
+    {
+        foreach ($specifiers as $specifier) {
+            $specifierInstance = Formatter::getSpecifier($specifier->getName());
+            /**
+             * @var mixed[] $args
+             */
+            $args = [$value];
+            foreach ($specifier->getModifiers() as $modifier) {
+                /** @psalm-suppress MixedAssignment */
+                $args[] = $modifier->getValue();
+            }
+            /** @var string $value */
+            $value = call_user_func_array(
+                [$specifierInstance, 'format'],
+                $args
+            );
+        }
+
+        return $value;
+    }
+
+    /**
+     * Конвертирует значение в строку
+     *
+     * @param mixed $value
+     */
+    protected static function convert($value): string
+    {
+        if (is_bool($value)) {
+            return $value ? 'true' : 'false';
+        }
+        if (is_null($value)) {
+            return 'null';
+        }
+        if (is_array($value)) {
+            return 'array';
+        }
+        if (is_object($value) && !method_exists($value, '__toString')) {
+            return get_class($value);
+        }
+        if ($value === 0) {
+            return '0';
+        }
+
+        return (string) $value;
     }
 }

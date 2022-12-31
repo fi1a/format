@@ -17,8 +17,6 @@ Formatter::addSpecifier('unescape', UnEscape::class);
 Formatter::addSpecifier('memory', Memory::class);
 Formatter::addSpecifier('time', Time::class);
 
-Formatter::useAlways('escape', 0);
-
 DateSpecifier::setDayOfWeek3('ru', [
     'Mon' => 'Пн',
     'Tue' => 'Вт',

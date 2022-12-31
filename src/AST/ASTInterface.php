@@ -12,8 +12,9 @@ interface ASTInterface
     /**
      * Конструктор
      *
-     * @param mixed[] $values
-     * @param mixed[] $modifierValues
+     * @param mixed[]  $values
+     * @param mixed[]  $modifierValues
+     * @param string[] $alwaysSpecifiers
      */
     public function __construct(string $string, array $values = [], array $modifierValues = []);
 
