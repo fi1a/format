@@ -179,6 +179,22 @@ class PriceTest extends TestCase
                 ]
             )
         );
+        $this->assertEquals(
+            '100 100.00',
+            Formatter::format(
+                '{{value|price(2.0, decimalSeparator, thousandsSeparator, '
+                . 'allowZeroDecimal, round, roundPrecision, floor)}}',
+                ['value' => 100100.6],
+                [
+                    'decimalSeparator' => '.',
+                    'thousandsSeparator' => ' ',
+                    'allowZeroDecimal' => true,
+                    'round' => null,
+                    'roundPrecision' => 0,
+                    'floor' => true,
+                ]
+            )
+        );
     }
 
     /**

@@ -1208,6 +1208,24 @@ class TokenizerTest extends TestCase
                     Token::T_CLOSE_STATEMENT,
                 ],
             ],
+            // 88
+            [
+                '{{|price(0,"."," ",false,null,0,true)}}',
+                24,
+                [
+                    '{{', '', '|', 'price', '(', '0', ',', '"', '.', '"', ',', '"', ' ', '"', ',', 'false', ',',
+                    'null', ',', '0', ',', 'true', ')', '}}',
+                ],
+                [
+                    Token::T_OPEN_STATEMENT, Token::T_VARIABLE, Token::T_SEPARATOR, Token::T_SPECIFIER,
+                    Token::T_OPEN_PARENTHESES, Token::T_MODIFIER, Token::T_COMMA_SEPARATOR,
+                    Token::T_QUOTE, Token::T_MODIFIER, Token::T_QUOTE, Token::T_COMMA_SEPARATOR,
+                    Token::T_QUOTE, Token::T_MODIFIER, Token::T_QUOTE, Token::T_COMMA_SEPARATOR,
+                    Token::T_FALSE, Token::T_COMMA_SEPARATOR, Token::T_NULL, Token::T_COMMA_SEPARATOR,
+                    Token::T_MODIFIER, Token::T_COMMA_SEPARATOR,
+                    Token::T_TRUE, Token::T_CLOSE_PARENTHESES, Token::T_CLOSE_STATEMENT,
+                ],
+            ],
         ];
     }
 

@@ -506,30 +506,44 @@ class AST implements ASTInterface
         if ($token->getType() === Token::T_TRUE) {
             $value = true;
             $isVariable = false;
+
+            return;
         }
         if ($token->getType() === Token::T_FALSE) {
             $value = false;
             $isVariable = false;
+
+            return;
         }
         if ($token->getType() === Token::T_NULL) {
             $value = null;
             $isVariable = false;
+
+            return;
         }
         if ($isQuote && is_string($value)) {
             $value = str_replace('\"', '"', $value);
             $isVariable = false;
+
+            return;
         }
         if ($isSingle && is_string($value)) {
             $value = str_replace("\'", "'", $value);
             $isVariable = false;
+
+            return;
         }
         if (!$isQuote && !$isSingle && filter_var($value, FILTER_VALIDATE_INT) !== false) {
             $value = (int) $value;
             $isVariable = true;
+
+            return;
         }
         if (!$isQuote && !$isSingle && filter_var($value, FILTER_VALIDATE_FLOAT) !== false) {
             $value = (float) $value;
             $isVariable = true;
+
+            return;
         }
     }
 
