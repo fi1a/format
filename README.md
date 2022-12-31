@@ -18,6 +18,7 @@
 - форматирование времени;
 - склонение слов после числительных;
 - форматирование номера телефона;
+- форматирование цены;
 - условные конструкции (if, elseif, else, endif);
 - собственные функции спецификаторы;
 - возможность задать сокращения для функций спецификаторов;
@@ -131,7 +132,8 @@ Formatter::format(Safe::unescape(('\\{{0}}'), [0 => 'foo']); // foo
 - memory - форматирование размера памяти (x.x Б, x.x КБ, x.x МБ, x.x ГБ, x.x ТБ, x.x ПБ);
 - time - форматирование времени (< 1 сек., x сек., x мин., x ч., x д.);
 - declension - склонение слов после числительных;
-- phone - форматирование номера телефона (+7(ddd)ddd-dddd).
+- phone - форматирование номера телефона (+7(ddd)ddd-dddd);
+- price - форматирование цены.
 
 Указание функции спецификатора следует после указания ключа с разделителем "|".
 
@@ -380,6 +382,56 @@ use Fi1a\Format\Formatter;
 Formatter::format('{{value|phone("+7(ddd)ddd-dddd")}}', ['value' => '+79228223576']); // +7(922)822-3576
 Formatter::format('{{value|phone("+7(ddd)ddd-dddd")}}', ['value' => '9228223576']); // +7(922)822-3576
 Formatter::format('{{value|phone("(dddd)dd-dd-dd")}}', ['value' => '(6783)44-00-44']); // (6783)44-00-44
+```
+
+## PHP форматирование цены
+
+С помощью функции спецификатора `price` можно форматировать цены:
+
+Модификаторы функции спецификатора форматирования цены:
+
+- int decimals - число знаков после запятой;
+- string decimalSeparator - разделитель дробной части;
+- string thousandsSeparator - разделитель тысяч;
+- bool allowZeroDecimal - разрешить вывод 0 в конце дробной части.
+
+```php
+use Fi1a\Format\Formatter;
+
+Formatter::format('{{value|price}} руб.', ['value' => 100.00]); // 100 руб.
+
+Formatter::format(
+    '{{value|price(decimals, decimalSeparator, thousandsSeparator, allowZeroDecimal)}} руб.',
+    ['value' => 100100.00],
+    [
+        'decimals' => 2,
+        'decimalSeparator' => '.',
+        'thousandsSeparator' => ' ',
+        'allowZeroDecimal' => true,
+    ]
+); // 100 100.00 руб.
+
+Formatter::format(
+    '{{value|price(decimals, decimalSeparator, thousandsSeparator, allowZeroDecimal)}} руб.',
+    ['value' => 100100.00],
+    [
+        'decimals' => 2,
+        'decimalSeparator' => '.',
+        'thousandsSeparator' => ' ',
+        'allowZeroDecimal' => false,
+    ]
+); // 100 100 руб.
+
+Formatter::format(
+    '{{value|price(decimals, decimalSeparator, thousandsSeparator, allowZeroDecimal)}} руб.',
+    ['value' => 100100.12],
+    [
+        'decimals' => 2,
+        'decimalSeparator' => '.',
+        'thousandsSeparator' => ' ',
+        'allowZeroDecimal' => false,
+    ]
+); // 100 100.12 руб.
 ```
 
 ## Условные конструкции
