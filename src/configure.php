@@ -7,6 +7,7 @@ use Fi1a\Format\Specifier\Date as DateSpecifier;
 use Fi1a\Format\Specifier\Declension;
 use Fi1a\Format\Specifier\Escape;
 use Fi1a\Format\Specifier\Memory;
+use Fi1a\Format\Specifier\Number;
 use Fi1a\Format\Specifier\Phone;
 use Fi1a\Format\Specifier\Price;
 use Fi1a\Format\Specifier\Sprintf;
@@ -22,6 +23,7 @@ Formatter::addSpecifier('time', Time::class);
 Formatter::addSpecifier('declension', Declension::class);
 Formatter::addSpecifier('phone', Phone::class);
 Formatter::addSpecifier('price', Price::class);
+Formatter::addSpecifier('number', Number::class);
 
 DateSpecifier::setDayOfWeek3('ru', [
     'Mon' => 'Пн',
