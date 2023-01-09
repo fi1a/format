@@ -34,29 +34,30 @@ class Formatter implements FormatterInterface
     /**
      * @inheritDoc
      */
-    public static function format(string $string, array $values = []): string
+    public static function format(string $string, array $values = [], array $modifierValues = []): string
     {
         $matches = [];
         while (
             preg_match(
-                '#(\{\{[\s\t\n]*)([0-9\w\_\:]*)([\s\t\n]*\|[\s\t\n]*|)~([^\}\s\t\n]*)([\s\t\n]*\}\})#',
+                '#(([^\\\]+|^)\{\{(.*))([\s\t\n]*\|[\s\t\n]*|([^\\\]*\{\{(.*)))'
+                . '~([^\\\}\|\s\t\n]*)([\s\t\n]*([^\\\]*\}\})|(\|.+\}\}))#',
                 $string,
                 $matches,
                 PREG_OFFSET_CAPTURE
-            )
+            ) > 0
         ) {
-            $shortcutName = mb_strtolower($matches[4][0]);
+            $shortcutName = mb_strtolower($matches[7][0]);
             if (!isset(static::$shortcuts[$shortcutName])) {
                 throw new InvalidArgumentException(
-                    sprintf('Shortcut "%s" not found', $matches[4][0])
+                    sprintf('Shortcut "%s" not found', $matches[7][0])
                 );
             }
-            $string = substr($string, 0, $matches[4][1] - 1)
+            $string = substr($string, 0, $matches[7][1] - 1)
                 . static::$shortcuts[$shortcutName]
-                . substr($string, $matches[4][1] + mb_strlen($shortcutName));
+                . substr($string, $matches[7][1] + mb_strlen($shortcutName));
         }
 
-        $ast = new AST($string, $values);
+        $ast = new AST($string, $values, $modifierValues);
         $formatted = '';
 
         /**
@@ -64,27 +65,7 @@ class Formatter implements FormatterInterface
          */
         foreach ($ast->getNodes() as $node) {
             if ($node instanceof VariableInterface) {
-                $value = static::convert($node->getValue());
-                $specifier = $node->getSpecifier();
-                if ($specifier) {
-                    $specifierInstance = static::getSpecifier($specifier->getName());
-                    /**
-                     * @var mixed[] $args
-                     */
-                    $args = [$value];
-                    foreach ($specifier->getModifiers() as $modifier) {
-                        /** @psalm-suppress MixedAssignment */
-                        $args[] = $modifier->getValue();
-                    }
-                    $formatted .= (string) call_user_func_array(
-                        [$specifierInstance, 'format'],
-                        $args
-                    );
-
-                    continue;
-                }
-
-                $formatted .= $value;
+                $formatted .= $node->getValue();
 
                 continue;
             }
@@ -212,31 +193,5 @@ class Formatter implements FormatterInterface
         unset(static::$shortcuts[mb_strtolower($name)]);
 
         return true;
-    }
-
-    /**
-     * Конвертирует значение в строку
-     *
-     * @param mixed $value
-     */
-    private static function convert($value): string
-    {
-        if (is_bool($value)) {
-            return $value ? 'true' : 'false';
-        }
-        if (is_null($value)) {
-            return 'null';
-        }
-        if (is_array($value)) {
-            return 'array';
-        }
-        if (is_object($value) && !method_exists($value, '__toString')) {
-            return get_class($value);
-        }
-        if ($value === 0) {
-            return '0';
-        }
-
-        return (string) $value;
     }
 }

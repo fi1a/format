@@ -38,6 +38,11 @@ class Tokenizer extends AParseFunction
     protected $openParenthesesCount = 0;
 
     /**
+     * @var string
+     */
+    protected $parseSpecifierReturn = '';
+
+    /**
      * @var int[]
      */
     protected static $keywords = [
@@ -287,6 +292,7 @@ class Tokenizer extends AParseFunction
         bool &$quote,
         bool &$single
     ): void {
+        $this->parseSpecifierReturn = '';
         $matchRegexp = '/[\s\t\n\(\)\!\+\-\/\*\%\&\|]/mui';
 
         do {
@@ -296,7 +302,7 @@ class Tokenizer extends AParseFunction
             if (preg_match('/[\s\t\n]/mui', $symbol) && !$quote && !$single) {
                 $this->whiteSpaceReturn = 'parseConditions';
                 $this->setParseFunction('parseWhitespace');
-                if ($image) {
+                if ($image !== '') {
                     $type = Token::T_CONDITION_PART;
                 }
 
@@ -352,6 +358,16 @@ class Tokenizer extends AParseFunction
                 return;
             }
 
+            if ($symbol === '|') {
+                $this->parseSpecifierReturn = 'parseConditions';
+                $this->setParseFunction('parseSeparator');
+                if ($image !== '') {
+                    $type = Token::T_CONDITION_PART;
+                }
+
+                return;
+            }
+
             $loop = ($symbol !== ')' || $quote || $single) && $current < mb_strlen($source);
             if ($loop) {
                 $image .= $symbol;
@@ -362,7 +378,7 @@ class Tokenizer extends AParseFunction
         $current--;
         $this->openParenthesesCount--;
         $this->setParseFunction('parseCloseParentheses');
-        if ($image) {
+        if ($image !== '') {
             $type = Token::T_CONDITION_PART;
         }
     }
@@ -388,11 +404,11 @@ class Tokenizer extends AParseFunction
         do {
             $symbol = mb_substr($source, $current, 1);
             $secondSymbol = mb_substr($source, $current + 1, 1);
-
             if (preg_match('/[\s\t\n]/mui', $symbol)) {
                 $this->whiteSpaceReturn = 'parseStatement';
                 $this->setParseFunction('parseWhitespace');
-                if ($image) {
+
+                if ($image !== '') {
                     $this->checkKeywords($image, $type);
                 }
 
@@ -422,7 +438,7 @@ class Tokenizer extends AParseFunction
                 $this->openParenthesesCount++;
                 $this->openParenthesesReturn = 'parseConditions';
                 $this->setParseFunction('parseOpenParentheses');
-                if ($image) {
+                if ($image !== '') {
                     $this->checkKeywords($image, $type);
                 }
 
@@ -432,7 +448,7 @@ class Tokenizer extends AParseFunction
             if ($symbol === '}' && !$secondSymbol) {
                 $current--;
                 $this->setParseFunction('parse');
-                if ($image) {
+                if ($image !== '') {
                     $this->checkKeywords($image, $type);
                 }
 
@@ -455,7 +471,7 @@ class Tokenizer extends AParseFunction
             )
         ) {
             $type = Token::T_VARIABLE;
-            if ($image) {
+            if ($image !== '') {
                 $this->checkKeywords($image, $type);
             }
         }
@@ -576,7 +592,7 @@ class Tokenizer extends AParseFunction
         } while ($loop);
         $current--;
         $this->setParseFunction('parseCloseParentheses');
-        if ($image) {
+        if ($image !== '') {
             $type = Token::T_MODIFIER;
         }
     }
@@ -630,7 +646,15 @@ class Tokenizer extends AParseFunction
             $image = $symbol;
         }
         $current++;
-        $this->setParseFunction('parseStatement');
+
+        $nextSymbol = mb_substr($source, $current, 1);
+        if ($nextSymbol === '|') {
+            $this->setParseFunction('parseSeparator');
+
+            return;
+        }
+
+        $this->setParseFunction($this->parseSpecifierReturn ?: 'parseStatement');
     }
 
     /**
@@ -660,7 +684,7 @@ class Tokenizer extends AParseFunction
     }
 
     /**
-     * Парсинг открытия скобки в условиях
+     * Парсинг закрытия скобки в условиях
      *
      *            -
      * {{if((1 + 2) == 3)}}
@@ -739,9 +763,14 @@ class Tokenizer extends AParseFunction
         do {
             $symbol = mb_substr($source, $current, 1);
             $secondSymbol = mb_substr($source, $current + 1, 1);
+            $prevSymbol = mb_substr($source, $current - 1, 1);
             if (preg_match('/[\s\t\n]/mui', $symbol)) {
-                $this->setParseFunction('parseWhitespace');
-                if ($image) {
+                $this->setParseFunction(
+                    $this->parseSpecifierReturn && $prevSymbol !== '|'
+                        ? $this->parseSpecifierReturn
+                        : 'parseWhitespace'
+                );
+                if ($image !== '') {
                     $type = Token::T_SPECIFIER;
                     $this->openParenthesesReturn = 'parseSpecifierModifiers';
                     $this->whiteSpaceReturn = 'parseOpenParentheses';
@@ -751,10 +780,27 @@ class Tokenizer extends AParseFunction
 
                 return;
             }
+            if (
+                $symbol === ')'
+                || $this->isConditionOperator($source, $current, $quote, $single)
+            ) {
+                if ($image !== '') {
+                    $type = Token::T_SPECIFIER;
+                }
+                $this->setParseFunction($this->parseSpecifierReturn ?: 'parseConditions');
+
+                return;
+            }
             if ($symbol === '(') {
                 $type = Token::T_SPECIFIER;
                 $this->openParenthesesReturn = 'parseSpecifierModifiers';
                 $this->setParseFunction('parseOpenParentheses');
+
+                return;
+            }
+            if ($symbol === '|') {
+                $type = Token::T_SPECIFIER;
+                $this->setParseFunction('parseSeparator');
 
                 return;
             }
@@ -766,10 +812,43 @@ class Tokenizer extends AParseFunction
             $current++;
         } while ($loop);
         $current--;
-        if ($image) {
+        if ($image !== '') {
             $type = Token::T_SPECIFIER;
         }
         $this->setParseFunction('parseStatement');
+    }
+
+    /**
+     * Опреатор в условии?
+     */
+    protected function isConditionOperator(
+        string &$source,
+        int &$current,
+        bool &$quote,
+        bool &$single
+    ): bool {
+        $matchRegexp = '/[\s\t\n\(\)\!\+\-\/\*\%\&\|]/mui';
+        $prevSymbol = mb_substr($source, $current - 1, 1);
+
+        foreach (array_keys(static::$operators) as $operator) {
+            $key = mb_strtolower(mb_substr($source, $current, mb_strlen((string) $operator)));
+            $nextKey = mb_substr($source, $current + mb_strlen((string) $operator), 1);
+            if (
+                $key === $operator && !$quote && !$single
+                && (
+                    !preg_match('/[\w]+/mui', $operator)
+                    || !$nextKey
+                    || (
+                        preg_match($matchRegexp, $prevSymbol)
+                        && preg_match($matchRegexp, $nextKey)
+                    )
+                )
+            ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

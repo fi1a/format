@@ -12,16 +12,15 @@ interface VariableInterface extends NodeInterface
     /**
      * Конструктор
      *
-     * @param mixed[]         $values
+     * @param mixed[] $values
+     * @param SpecifierInterface[] $specifiers
      */
-    public function __construct(string $path, array $values = [], ?SpecifierInterface $specifier = null);
+    public function __construct(string $path, array $values = [], array $specifiers = []);
 
     /**
      * Возвращает значение
-     *
-     * @return mixed
      */
-    public function getValue();
+    public function getValue(): string;
 
     /**
      * Возвращает ключ
@@ -30,6 +29,8 @@ interface VariableInterface extends NodeInterface
 
     /**
      * Возвращает спецификатор
+     *
+     * @return SpecifierInterface[]
      */
-    public function getSpecifier(): ?SpecifierInterface;
+    public function getSpecifiers(): array;
 }

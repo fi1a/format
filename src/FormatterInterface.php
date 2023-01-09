@@ -25,10 +25,11 @@ interface FormatterInterface
      *
      * @param string $string строка для форматирования
      * @param mixed[]  $values значения для подстановки
+     * @param mixed[]  $modifierValues значения модификаторов функций спецификаторов
      *
      * @codeCoverageIgnore
      */
-    public static function format(string $string, array $values = []): string;
+    public static function format(string $string, array $values = [], array $modifierValues = []): string;
 
     /**
      * Добавить функцию спецификаторов

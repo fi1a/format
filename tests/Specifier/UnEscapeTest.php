@@ -27,6 +27,6 @@ class UnEscapeTest extends TestCase
      */
     public function testFormat(): void
     {
-        $this->assertEquals('"test"', Formatter::format('{{|unescape}}', ['&quot;test&quot;']));
+        $this->assertEquals('"test"', Formatter::format('{{|unescape|unescape}}', ['&quot;test&quot;']));
     }
 }

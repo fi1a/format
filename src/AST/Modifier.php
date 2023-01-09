@@ -16,25 +16,25 @@ class Modifier implements ModifierInterface
     /**
      * @var mixed
      */
-    private $value;
+    protected $value;
 
     /**
      * @var mixed[]
      */
-    private $values;
+    protected $modifierValues;
 
     /**
      * @var bool
      */
-    private $isVariable;
+    protected $isVariable;
 
     /**
      * @inheritDoc
      */
-    public function __construct($value, array $values, bool $isVariable)
+    public function __construct($value, array $modifierValues, bool $isVariable)
     {
         $this->value = $value;
-        $this->values = $values;
+        $this->modifierValues = $modifierValues;
         $this->isVariable = $isVariable;
     }
 
@@ -45,7 +45,7 @@ class Modifier implements ModifierInterface
     {
         if ($this->isVariable) {
             try {
-                return $this->getValueInternal($this->values, $this->explodePath((string) $this->value));
+                return $this->getValueInternal($this->modifierValues, $this->explodePath((string) $this->value));
             } catch (NotFoundKey $exception) {
                 if (is_numeric($this->value)) {
                     return $this->value;

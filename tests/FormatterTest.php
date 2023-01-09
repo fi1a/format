@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Fi1a\Unit\Format;
 
 use Fi1a\Format\AST\Exception\FormatErrorException;
+use Fi1a\Format\AST\Exception\NotFoundKey;
 use Fi1a\Format\Exception\SpecifierNotFoundException;
 use Fi1a\Format\Formatter;
 use Fi1a\Format\Specifier\SpecifierInterface;
@@ -15,6 +16,9 @@ use PHPUnit\Framework\TestCase;
 
 use const LC_ALL;
 
+/**
+ * Форматирование строковых шаблонов
+ */
 class FormatterTest extends TestCase
 {
     public $key = 'key_value';
@@ -382,9 +386,11 @@ class FormatterTest extends TestCase
                     'key1' => [
                         'key2' => 123,
                     ],
-                    'modifier' => '\'.9d',
                 ],
                 '......123',
+                [
+                    'modifier' => '\'.9d',
+                ],
             ],
             // 43
             [
@@ -555,20 +561,24 @@ class FormatterTest extends TestCase
                 '{{|spf(key1 , key2)}}',
                 [
                     1,
+                ],
+                '1',
+                [
                     'key1' => false,
                     'key2' => true,
                 ],
-                '1',
             ],
             // 59
             [
                 '{{|spf(key1,key2)}}',
                 [
                     1,
+                ],
+                '1',
+                [
                     'key1' => false,
                     'key2' => true,
                 ],
-                '1',
             ],
             // 60
             [
@@ -735,6 +745,133 @@ class FormatterTest extends TestCase
                 ],
                 '2',
             ],
+            // 77
+            [
+                '{{|unescape|date("d.m.Y")|escape()}}',
+                [
+                    strtotime('29.12.2022'),
+                ],
+                '29.12.2022',
+            ],
+            // 78
+            [
+                '{{ 0 }}',
+                [
+                    '&',
+                ],
+                '&amp;',
+            ],
+            // 79
+            [
+                '{{  }}',
+                [
+                    '&',
+                ],
+                '&amp;',
+            ],
+            // 80
+            [
+                '{{}}',
+                [
+                    '&',
+                ],
+                '&amp;',
+            ],
+            // 81
+            [
+                '{{if(key:value === "&amp;")}}true{{endif}}',
+                [
+                    'key' => [
+                        'value' => '&',
+                    ],
+                ],
+                'true',
+            ],
+            // 82
+            [
+                '{{if(key:value|unescape === "&")}}true{{endif}}',
+                [
+                    'key' => [
+                        'value' => '&',
+                    ],
+                ],
+                'true',
+            ],
+            // 83
+            [
+                '{{if(key:value|~un === "&")}}true{{endif}}',
+                [
+                    'key' => [
+                        'value' => '&',
+                    ],
+                ],
+                'true',
+            ],
+            // 84
+            [
+                '{{}}',
+                [
+                    1,
+                ],
+                '1',
+            ],
+            // 85
+            [
+                '{{}}',
+                [
+                    0,
+                ],
+                '0',
+            ],
+            // 86
+            [
+                '{{if(0===0)}}true{{endif}}',
+                [
+                ],
+                'true',
+            ],
+            // 87
+            [
+                '{{if(1>0)}}true{{endif}}',
+                [
+                ],
+                'true',
+            ],
+            // 88
+            [
+                '{{if("0"!==0)}}true{{endif}}',
+                [
+                ],
+                'true',
+            ],
+            // 89
+            [
+                '{{if("0"==0)}}true{{endif}}',
+                [
+                ],
+                'true',
+            ],
+            // 90
+            [
+                '{{if(0||1)}}true{{endif}}',
+                [
+                ],
+                'true',
+            ],
+            // 91
+            [
+                '{{if(0|escape||1)}}true{{endif}}',
+                [
+                ],
+                'true',
+            ],
+            // 92
+            [
+                '{{if(0|escape || 1)}}true{{endif}}',
+                [
+                ],
+                'true',
+            ],
         ];
     }
 
@@ -742,14 +879,16 @@ class FormatterTest extends TestCase
      * Форматирование и подстановка значений в строке
      *
      * @param mixed[]  $values
+     * @param mixed[]  $modifierValues
      *
      * @dataProvider dataProviderFormat
      */
-    public function testFormat(string $string, array $values, string $equal)
+    public function testFormat(string $string, array $values, string $equal, array $modifierValues = [])
     {
         Formatter::addSpecifier('spf', Specifier::class);
+        Formatter::addShortcut('un', 'unescape');
         setlocale(LC_ALL, 'en_US.UTF-8');
-        $this->assertEquals($equal, Formatter::format($string, $values));
+        $this->assertEquals($equal, Formatter::format($string, $values, $modifierValues));
     }
 
     /**
@@ -1058,10 +1197,83 @@ class FormatterTest extends TestCase
     /**
      * Тестирование методов работы с сокращениями
      */
+    public function testShortcutText(): void
+    {
+        $this->assertTrue(Formatter::addShortcut('spf', 'sprintf("\'.9d")'));
+        $this->assertEquals(
+            '~spf ......123......123 |~spf|',
+            Formatter::format('~spf {{|~spf}}{{0|~spf}} |~spf|', [123])
+        );
+        $this->assertTrue(Formatter::deleteShortcut('spf'));
+    }
+
+    /**
+     * Тестирование методов работы с сокращениями
+     */
+    public function testShortcutEscape(): void
+    {
+        $this->assertTrue(Formatter::addShortcut('spf', 'sprintf("\'.9d")'));
+        $this->assertEquals(
+            '{{|~spf}} ......123......123',
+            Formatter::format('\\{{|~spf\\}} {{|~spf}}{{0|~spf}}', [123])
+        );
+        $this->assertTrue(Formatter::deleteShortcut('spf'));
+    }
+
+    /**
+     * Тестирование методов работы с сокращениями
+     */
+    public function testShortcutEscapeChain(): void
+    {
+        $this->assertTrue(Formatter::addShortcut('spf', 'sprintf("\'.9d")'));
+        $this->assertEquals(
+            '{{|~spf|~spf}} ......123......123',
+            Formatter::format('\\{{|~spf|~spf\\}} {{|~spf}}{{0|~spf}}', [123])
+        );
+        $this->assertTrue(Formatter::deleteShortcut('spf'));
+    }
+
+    /**
+     * Тестирование методов работы с сокращениями в цепочке
+     */
+    public function testShortcutInChainWithText(): void
+    {
+        $this->assertTrue(Formatter::addShortcut('spf', 'sprintf("\'.9d")'));
+        $this->assertEquals(
+            'test ......123 test',
+            Formatter::format('test {{|unescape()|~spf|escape}} test', [123])
+        );
+        $this->assertTrue(Formatter::deleteShortcut('spf'));
+    }
+
+    /**
+     * Тестирование методов работы с сокращениями в цепочке
+     */
+    public function testShortcutInChain(): void
+    {
+        $this->assertTrue(Formatter::addShortcut('spf', 'sprintf("\'.9d")'));
+        $this->assertEquals(
+            '......123',
+            Formatter::format('{{|unescape()|~spf|escape}}', [123])
+        );
+        $this->assertTrue(Formatter::deleteShortcut('spf'));
+    }
+
+    /**
+     * Тестирование методов работы с сокращениями
+     */
     public function testShortcutNotFound(): void
     {
         $this->expectException(InvalidArgumentException::class);
         Formatter::format('{{|~spf}}', [123]);
+    }
+
+    /**
+     * Тестирование методов работы с сокращениями
+     */
+    public function testShortcutEscapeNotExists(): void
+    {
+        $this->assertEquals('{{|~spf}}', Formatter::format('\\{{|~spf\\}}', [123]));
     }
 
     /**
@@ -1098,5 +1310,14 @@ class FormatterTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         Formatter::deleteShortcut('');
+    }
+
+    /**
+     * Исключение при отсутсвии ключа у модификатора функции спецификатора
+     */
+    public function testModifierException(): void
+    {
+        $this->expectException(NotFoundKey::class);
+        Formatter::format('{{|sprintf(modifier)}}', [0], []);
     }
 }

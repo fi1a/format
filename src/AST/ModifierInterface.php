@@ -12,10 +12,10 @@ interface ModifierInterface extends NodeInterface
     /**
      * Конструктор
      *
-     * @param mixed $value
-     * @param mixed[] $values
+     * @param mixed   $value
+     * @param mixed[] $modifierValues
      */
-    public function __construct($value, array $values, bool $isVariable);
+    public function __construct($value, array $modifierValues, bool $isVariable);
 
     /**
      * Возвращает значение

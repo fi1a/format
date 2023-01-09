@@ -14,6 +14,9 @@ use Fi1a\Tokenizer\ITokenizer;
 use Fi1a\Tokenizer\PHP\Token as PHPToken;
 use Fi1a\Tokenizer\PHP\TokenizerFactory;
 
+use const FILTER_VALIDATE_FLOAT;
+use const FILTER_VALIDATE_INT;
+
 /**
  * AST
  */
@@ -64,7 +67,7 @@ class AST implements ASTInterface
     /**
      * @inheritDoc
      */
-    public function __construct(string $string, array $values = [])
+    public function __construct(string $string, array $values = [], array $modifierValues = [])
     {
         $this->nodes = new Nodes();
         $statements = 0;
@@ -89,7 +92,7 @@ class AST implements ASTInterface
             /** @psalm-suppress PossiblyInvalidMethodCall */
             if ($token->getType() === Token::T_VARIABLE && $conditions->isSatisfies()) {
                 /** @psalm-suppress PossiblyInvalidArgument */
-                $this->variable($counter, $tokenizer, $token, $values);
+                $this->variable($counter, $tokenizer, $token, $values, $modifierValues);
 
                 continue;
             }
@@ -99,7 +102,14 @@ class AST implements ASTInterface
                 || ($token->getType() === Token::T_ELSEIF && !$conditions->isSatisfies())
             ) {
                 /** @psalm-suppress PossiblyInvalidArgument */
-                $this->condition($conditions, $openConditions, $tokenizer, $token, $values);
+                $this->condition(
+                    $conditions,
+                    $openConditions,
+                    $tokenizer,
+                    $token,
+                    $modifierValues,
+                    $values
+                );
 
                 continue;
             }
@@ -153,9 +163,15 @@ class AST implements ASTInterface
      * Переменная
      *
      * @param mixed[] $values
+     * @param mixed[] $modifierValues
      */
-    private function variable(Counter $counter, Tokenizer $tokenizer, IToken $tokenVariable, array $values): void
-    {
+    private function variable(
+        Counter $counter,
+        Tokenizer $tokenizer,
+        IToken $tokenVariable,
+        array $values,
+        array $modifierValues
+    ): void {
         $path = $tokenVariable->getImage();
         if ($path === '') {
             $path = (string) $counter->get();
@@ -164,22 +180,25 @@ class AST implements ASTInterface
         if ($tokenizer->lookAtNextType() === Token::T_WHITESPACE) {
             $tokenizer->next();
         }
-        $specifier = null;
-        if ($tokenizer->lookAtNextType() === Token::T_SEPARATOR) {
+        $specifiers = [];
+        while ($tokenizer->lookAtNextType() === Token::T_SEPARATOR) {
             /** @psalm-suppress PossiblyInvalidArgument */
-            $specifier = $this->specifier($tokenizer, $tokenizer->next(), $values);
+            $specifiers[] = $this->specifier($tokenizer, $tokenizer->next(), $modifierValues);
         }
 
-        $this->nodes[] = new Variable($path, $values, $specifier);
+        $this->nodes[] = new Variable($path, $values, $specifiers);
     }
 
     /**
      * Спецификатор
      *
-     * @param mixed[] $values
+     * @param mixed[] $modifierValues
      */
-    private function specifier(Tokenizer $tokenizer, IToken $tokenSeparator, array $values): SpecifierInterface
-    {
+    private function specifier(
+        Tokenizer $tokenizer,
+        IToken $tokenSeparator,
+        array $modifierValues
+    ): SpecifierInterface {
         $tokenSpecifier = $tokenizer->next();
         if ($tokenSpecifier === ITokenizer::T_EOF) {
             throw new FormatErrorException(
@@ -279,7 +298,7 @@ class AST implements ASTInterface
                 }
                 /** @psalm-suppress PossiblyInvalidArgument */
                 $this->castValue($token, $value, $isVariable, $isQuote, $isSingle);
-                $modifiers[] = new Modifier($value, $values, $isVariable);
+                $modifiers[] = new Modifier($value, $modifierValues, $isVariable);
 
                 /** @psalm-suppress PossiblyInvalidMethodCall */
                 if ($token->getType() !== Token::T_QUOTE) {
@@ -351,6 +370,7 @@ class AST implements ASTInterface
     /**
      * Условие
      *
+     * @param mixed[] $modifierValues
      * @param mixed[] $values
      */
     private function condition(
@@ -358,6 +378,7 @@ class AST implements ASTInterface
         Counter $openConditions,
         Tokenizer $tokenizer,
         IToken $tokenIf,
+        array $modifierValues,
         array $values
     ): void {
         $token = $tokenizer->next();
@@ -404,6 +425,11 @@ class AST implements ASTInterface
                 /** @psalm-suppress PossiblyInvalidMethodCall */
                 $value = $token->getImage();
                 /** @psalm-suppress PossiblyInvalidMethodCall */
+                if ($token->getType() === Token::T_QUOTE) {
+                    continue;
+                }
+
+                /** @psalm-suppress PossiblyInvalidMethodCall */
                 if (
                     in_array(
                         $token->getType(),
@@ -417,7 +443,16 @@ class AST implements ASTInterface
                     $isVariable = true;
                     /** @psalm-suppress PossiblyInvalidArgument */
                     $this->castValue($token, $value, $isVariable, $isQuote, $isSingle);
-                    $conditionPart = new ConditionPart($value, $values, $isVariable);
+
+                    $specifiers = [];
+                    if ($isVariable) {
+                        while ($tokenizer->lookAtNextType() === Token::T_SEPARATOR) {
+                            /** @psalm-suppress PossiblyInvalidArgument */
+                            $specifiers[] = $this->specifier($tokenizer, $tokenizer->next(), $modifierValues);
+                        }
+                    }
+
+                    $conditionPart = new ConditionPart($value, $values, $isVariable, $specifiers);
                     try {
                         $value = var_export($conditionPart->getValue(), true);
                     } catch (NotFoundKey $exception) {
@@ -438,6 +473,7 @@ class AST implements ASTInterface
             );
         }
         $ifCondition = trim($ifCondition);
+
         if ($ifCondition === '') {
             throw new FormatErrorException(
                 sprintf(
@@ -470,22 +506,44 @@ class AST implements ASTInterface
         if ($token->getType() === Token::T_TRUE) {
             $value = true;
             $isVariable = false;
+
+            return;
         }
         if ($token->getType() === Token::T_FALSE) {
             $value = false;
             $isVariable = false;
+
+            return;
         }
         if ($token->getType() === Token::T_NULL) {
             $value = null;
             $isVariable = false;
+
+            return;
         }
         if ($isQuote && is_string($value)) {
             $value = str_replace('\"', '"', $value);
             $isVariable = false;
+
+            return;
         }
         if ($isSingle && is_string($value)) {
             $value = str_replace("\'", "'", $value);
             $isVariable = false;
+
+            return;
+        }
+        if (!$isQuote && !$isSingle && filter_var($value, FILTER_VALIDATE_INT) !== false) {
+            $value = (int) $value;
+            $isVariable = true;
+
+            return;
+        }
+        if (!$isQuote && !$isSingle && filter_var($value, FILTER_VALIDATE_FLOAT) !== false) {
+            $value = (float) $value;
+            $isVariable = true;
+
+            return;
         }
     }
 
