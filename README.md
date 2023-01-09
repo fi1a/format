@@ -430,7 +430,11 @@ Formatter::format(
 Для упрощения ввода функций спецификаторов форматирования числа, воспользуйтесь сокращением.
 
 ```php
+use Fi1a\Format\Formatter;
 
+Formatter::addShortcut('number', 'number(2, ".", " ", false)');
+Formatter::format('{{value|~number}}', ['value' => 100100.12]); // 100 100.12
+Formatter::format('{{value|~number}}', ['value' => 100100]); // 100 100
 ```
 
 ## PHP форматирование цены
