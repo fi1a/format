@@ -20,7 +20,7 @@ interface VariableInterface extends NodeInterface
     /**
      * Возвращает значение
      */
-    public function getValue(): string;
+    public function getValue(bool $escape = true): string;
 
     /**
      * Возвращает ключ

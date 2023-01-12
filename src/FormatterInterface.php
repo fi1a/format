@@ -29,7 +29,12 @@ interface FormatterInterface
      *
      * @codeCoverageIgnore
      */
-    public static function format(string $string, array $values = [], array $modifierValues = []): string;
+    public static function format(
+        string $string,
+        array $values = [],
+        array $modifierValues = [],
+        bool $escape = true
+    ): string;
 
     /**
      * Добавить функцию спецификаторов

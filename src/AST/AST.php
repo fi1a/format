@@ -67,7 +67,7 @@ class AST implements ASTInterface
     /**
      * @inheritDoc
      */
-    public function __construct(string $string, array $values = [], array $modifierValues = [])
+    public function __construct(string $string, array $values = [], array $modifierValues = [], bool $escape = true)
     {
         $this->nodes = new Nodes();
         $statements = 0;
@@ -108,7 +108,8 @@ class AST implements ASTInterface
                     $tokenizer,
                     $token,
                     $modifierValues,
-                    $values
+                    $values,
+                    $escape
                 );
 
                 continue;
@@ -379,7 +380,8 @@ class AST implements ASTInterface
         Tokenizer $tokenizer,
         IToken $tokenIf,
         array $modifierValues,
-        array $values
+        array $values,
+        bool $escape = true
     ): void {
         $token = $tokenizer->next();
         if ($token === ITokenizer::T_EOF) {
@@ -454,7 +456,7 @@ class AST implements ASTInterface
 
                     $conditionPart = new ConditionPart($value, $values, $isVariable, $specifiers);
                     try {
-                        $value = var_export($conditionPart->getValue(), true);
+                        $value = var_export($conditionPart->getValue($escape), true);
                     } catch (NotFoundKey $exception) {
                         $value = 'false';
                     }

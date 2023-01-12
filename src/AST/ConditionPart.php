@@ -40,13 +40,13 @@ class ConditionPart extends Modifier implements ConditionPartInterface
     /**
      * @inheritDoc
      */
-    public function getValue()
+    public function getValue(bool $escape = true)
     {
         if ($this->isVariable) {
             try {
                 /** @var mixed $value */
                 $value = $this->getValueInternal($this->modifierValues, $this->explodePath((string) $this->value));
-                if (is_string($value)) {
+                if (is_string($value) && $escape) {
                     $value = htmlspecialchars($value, ENT_COMPAT);
                 }
 

@@ -49,10 +49,12 @@ class Variable implements VariableInterface
     /**
      * @inheritDoc
      */
-    public function getValue(): string
+    public function getValue(bool $escape = true): string
     {
         $value = static::convert($this->getValueInternal($this->values, $this->explodePath($this->getKey())));
-        $value = htmlspecialchars($value, ENT_COMPAT);
+        if ($escape) {
+            $value = htmlspecialchars($value, ENT_COMPAT);
+        }
 
         return (string) $this->applySpecifier($value, $this->getSpecifiers());
     }

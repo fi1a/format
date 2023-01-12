@@ -34,8 +34,12 @@ class Formatter implements FormatterInterface
     /**
      * @inheritDoc
      */
-    public static function format(string $string, array $values = [], array $modifierValues = []): string
-    {
+    public static function format(
+        string $string,
+        array $values = [],
+        array $modifierValues = [],
+        bool $escape = true
+    ): string {
         $matches = [];
         while (
             preg_match(
@@ -57,7 +61,7 @@ class Formatter implements FormatterInterface
                 . substr($string, $matches[7][1] + mb_strlen($shortcutName));
         }
 
-        $ast = new AST($string, $values, $modifierValues);
+        $ast = new AST($string, $values, $modifierValues, $escape);
         $formatted = '';
 
         /**
@@ -65,7 +69,7 @@ class Formatter implements FormatterInterface
          */
         foreach ($ast->getNodes() as $node) {
             if ($node instanceof VariableInterface) {
-                $formatted .= $node->getValue();
+                $formatted .= $node->getValue($escape);
 
                 continue;
             }
