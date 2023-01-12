@@ -16,7 +16,7 @@ interface ASTInterface
      * @param mixed[]  $modifierValues
      * @param string[] $alwaysSpecifiers
      */
-    public function __construct(string $string, array $values = [], array $modifierValues = []);
+    public function __construct(string $string, array $values = [], array $modifierValues = [], bool $escape = true);
 
     /**
      * Возвращает список узлов

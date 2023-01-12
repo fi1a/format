@@ -1110,6 +1110,47 @@ class FormatterTest extends TestCase
     }
 
     /**
+     * Не преобразовывать спецсимволы в HTML-сущности
+     */
+    public function testNotEscapeVariable(): void
+    {
+        $this->assertEquals(
+            'escape &amp;',
+            Formatter::format('escape {{value}}', ['value' => '&'])
+        );
+
+        $this->assertEquals(
+            'no-escape &',
+            Formatter::format(
+                'no-escape {{value}}',
+                ['value' => '&'],
+                [],
+                false
+            )
+        );
+    }
+
+    /**
+     * Не преобразовывать спецсимволы в HTML-сущности
+     */
+    public function testNotEscapeCondition(): void
+    {
+        $this->assertEquals(
+            'escape',
+            Formatter::format('{{if(value==="&amp;")}}escape{{endif}}', ['value' => '&'])
+        );
+        $this->assertEquals(
+            'no-escape',
+            Formatter::format(
+                '{{if(value==="&")}}no-escape{{endif}}',
+                ['value' => '&'],
+                [],
+                false
+            )
+        );
+    }
+
+    /**
      * Тестирование методов работы со спецификаторами
      */
     public function testSpecifier(): void

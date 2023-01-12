@@ -41,7 +41,7 @@ class Modifier implements ModifierInterface
     /**
      * @inheritDoc
      */
-    public function getValue()
+    public function getValue(bool $escape = true)
     {
         if ($this->isVariable) {
             try {

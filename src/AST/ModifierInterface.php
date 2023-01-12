@@ -22,5 +22,5 @@ interface ModifierInterface extends NodeInterface
      *
      * @return mixed
      */
-    public function getValue();
+    public function getValue(bool $escape = true);
 }
