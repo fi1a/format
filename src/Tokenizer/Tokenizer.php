@@ -115,7 +115,7 @@ class Tokenizer extends AParseFunction
     ): void {
         do {
             $current++;
-            if (!$source || $current >= mb_strlen($source)) {
+            if ($source === '' || $current >= mb_strlen($source)) {
                 $finish = true;
 
                 return;
