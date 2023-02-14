@@ -1361,4 +1361,12 @@ class FormatterTest extends TestCase
         $this->expectException(NotFoundKey::class);
         Formatter::format('{{|sprintf(modifier)}}', [0], []);
     }
+
+    /**
+     * Выводит строку равную "0"
+     */
+    public function testFormatZero(): void
+    {
+        $this->assertEquals('0', Formatter::format('0'));
+    }
 }
